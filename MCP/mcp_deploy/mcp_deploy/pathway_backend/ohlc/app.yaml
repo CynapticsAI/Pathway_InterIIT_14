@@ -1,0 +1,16 @@
+---
+kafka_settings:
+  bootstrap.servers: "13.50.238.243:29092"
+  group.id: "stock_analyzer_ticks"
+  session.timeout.ms: "6000"
+
+postgres_settings:
+  host : postgres
+  port : 5432
+  dbname : pg_db
+  user : postgres
+  password : pass
+
+kafka_topic : ohlcv
+
+pg_table : ohlc_bars

@@ -1,0 +1,82 @@
+networks:
+  chronos-network:
+    driver: bridge
+
+services:
+  sarimax:
+    build:
+      context: ./sarimaxConsumer
+    container_name: chronos-sarimax
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=172.31.8.85:9090
+    extra_hosts:
+      - "kafka:172.31.8.85"
+    volumes:
+      - ./sarimaxConsumer:/app/output
+    networks:
+      - chronos-network
+    restart: unless-stopped
+
+  chronos_consumer:
+    build:
+      context: ./chronos_consumer
+    container_name: chronos-consumer
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=172.31.8.85:9090
+    extra_hosts:
+      - "kafka:172.31.8.85"
+    volumes:
+      - ./output:/app/chronos_output
+      - ./chronos_consumer/heartbeat:/app/heartbeat
+      - ./chronos_consumer/chronos2_stream_ckpts_latest:/app/chronos2_stream_ckpts_latest
+    networks:
+      - chronos-network
+    restart: unless-stopped
+
+  select_model:
+    build:
+      context: ./selection
+    container_name: chronos-select-model
+    depends_on:
+      - sarimax
+      - chronos_consumer
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=172.31.8.85:9090
+    extra_hosts:
+      - "kafka:172.31.8.85"
+    volumes:
+      - ./selection/s_output:/app/s_output
+    networks:
+      - chronos-network
+    restart: unless-stopped
+
+  trigger:
+    build:
+      context: ./trigger
+    container_name: chronos-trigger
+    depends_on:
+      - select_model
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=172.31.8.85:9090
+    volumes:
+      - ./trigger/t_output:/app/t_output
+    networks:
+      - chronos-network
+    restart: unless-stopped
+
+  api_server:
+    build:
+      context: ./api_server
+    container_name: chronos-api
+    ports:
+      - "9000:8000"
+    volumes:
+      - ./spike_detector:/app/spike_detector
+      - ./sarimaxConsumer:/app/sarimaxConsumer
+      - ./selection:/app/selection
+      - ./trigger/t_output:/app/trigger/t_output
+    depends_on:
+      - select_model
+    networks:
+      - chronos-network
+    restart: unless-stopped

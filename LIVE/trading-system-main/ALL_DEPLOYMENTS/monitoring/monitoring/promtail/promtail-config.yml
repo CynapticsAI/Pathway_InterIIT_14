@@ -1,0 +1,166 @@
+# =============================================================================
+# PROMTAIL CONFIGURATION
+# =============================================================================
+# Promtail is an agent which ships the contents of local logs to Loki.
+# It discovers targets (log files/streams), attaches labels, and pushes them.
+# =============================================================================
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+    tenant_id: trading-system
+    batchwait: 1s
+    batchsize: 1048576
+    timeout: 10s
+
+scrape_configs:
+  # ===========================================================================
+  # Docker Container Logs
+  # ===========================================================================
+  - job_name: docker-containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      # Extract container name
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      
+      # Extract compose service name
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
+      
+      # Extract compose project
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_project']
+        target_label: 'project'
+      
+      # Add container ID
+      - source_labels: ['__meta_docker_container_id']
+        target_label: 'container_id'
+      
+      # Add network name
+      - source_labels: ['__meta_docker_network_name']
+        target_label: 'network'
+      
+      # Identify Kafka-related containers
+      - source_labels: ['__meta_docker_container_name']
+        regex: '.*(kafka|zookeeper).*'
+        target_label: 'component'
+        replacement: 'kafka'
+      
+      # Identify producer containers
+      - source_labels: ['__meta_docker_container_name']
+        regex: '.*producer.*'
+        target_label: 'component'
+        replacement: 'producer'
+      
+      # Identify consumer containers
+      - source_labels: ['__meta_docker_container_name']
+        regex: '.*consumer.*'
+        target_label: 'component'
+        replacement: 'consumer'
+      
+      # Identify API containers
+      - source_labels: ['__meta_docker_container_name']
+        regex: '.*(api|server).*'
+        target_label: 'component'
+        replacement: 'api'
+
+    pipeline_stages:
+      # ===========================================================================
+      # Parse Docker JSON logs
+      # ===========================================================================
+      - docker: {}
+      
+      # ===========================================================================
+      # Extract log levels
+      # ===========================================================================
+      - regex:
+          expression: '(?i)(?P<level>(debug|info|warn(ing)?|error|fatal|critical|panic))'
+      - labels:
+          level:
+      
+      # ===========================================================================
+      # Parse JSON structured logs (common in Python services)
+      # ===========================================================================
+      - match:
+          selector: '{container=~".+"}'
+          stages:
+            - json:
+                expressions:
+                  json_level: level
+                  json_message: message
+                  json_timestamp: timestamp
+                  json_logger: logger
+            - labels:
+                json_level:
+                json_logger:
+      
+      # ===========================================================================
+      # Kafka-specific log parsing
+      # ===========================================================================
+      - match:
+          selector: '{component="kafka"}'
+          stages:
+            - regex:
+                expression: '\[(?P<timestamp>[^\]]+)\] (?P<level>\w+) (?P<message>.*)'
+            - labels:
+                level:
+            - timestamp:
+                source: timestamp
+                format: '2006-01-02 15:04:05,000'
+      
+      # ===========================================================================
+      # Extract topic names from logs
+      # ===========================================================================
+      - match:
+          selector: '{component=~"producer|consumer"}'
+          stages:
+            - regex:
+                expression: 'topic[=:]\s*["\']?(?P<topic>[a-zA-Z0-9_-]+)["\']?'
+            - labels:
+                topic:
+      
+      # ===========================================================================
+      # Extract stock symbols from logs
+      # ===========================================================================
+      - match:
+          selector: '{service=~".*"}'
+          stages:
+            - regex:
+                expression: '(?:symbol|ticker)[=:]\s*["\']?(?P<symbol>[A-Z]{1,5})["\']?'
+            - labels:
+                symbol:
+      
+      # ===========================================================================
+      # Normalize log levels
+      # ===========================================================================
+      - template:
+          source: level
+          template: '{{ ToLower .Value }}'
+      - labels:
+          level:
+      
+      # ===========================================================================
+      # Drop health check logs to reduce noise
+      # ===========================================================================
+      - match:
+          selector: '{container=~".+"}'
+          stages:
+            - drop:
+                expression: '.*(health|healthcheck|readiness|liveness|\/health|\/ready).*'
+                drop_counter_reason: 'health_check_noise'
+      
+      # ===========================================================================
+      # Add static labels
+      # ===========================================================================
+      - static_labels:
+          env: production
+          cluster: trading-system

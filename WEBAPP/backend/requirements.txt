@@ -1,0 +1,44 @@
+# Django Backend Requirements for pway-stock
+
+# Core Django
+Django>=5.2.8
+
+# Django REST Framework
+djangorestframework>=3.14.0
+
+# JWT Authentication
+djangorestframework-simplejwt>=5.3.0
+
+# CORS Headers
+django-cors-headers>=4.3.0
+
+# Image Processing (for profile pictures)
+Pillow>=10.1.0
+
+# HTTP Requests (for chatbot integration)
+requests>=2.31.0
+
+# API Documentation
+drf-spectacular>=0.27.0
+
+# Kafka Integration
+confluent-kafka>=2.3.0
+kafka-python>=2.0.2
+
+# WebSocket Support (Django Channels)
+channels>=4.0.0
+channels-redis>=4.1.0
+daphne>=4.0.0
+
+# Redis for Channel Layers
+redis>=5.0.1
+
+# Environment Variables
+python-decouple>=3.8
+
+# Optional but recommended for production:
+# gunicorn>=21.2.0  # Production server
+# psycopg2-binary>=2.9.9  # PostgreSQL support
+# django-storages>=1.14  # Cloud storage (S3, etc.)
+# celery>=5.3.4  # Async tasks
+# redis>=5.0.1  # Caching and Celery broker

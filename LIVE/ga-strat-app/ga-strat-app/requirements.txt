@@ -1,0 +1,10 @@
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+deap>=1.4.0
+ta>=0.10.0
+backtrader>=1.9.0
+tqdm>=4.65.0
+fastapi
+uvicorn[standard]
+httpx

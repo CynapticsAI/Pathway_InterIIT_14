@@ -1,0 +1,64 @@
+
+# =============================================================================
+# AWS MACRO DEPLOYMENT
+# =============================================================================
+# This deployment uses the shared Kafka cluster from kafka_cluster/
+# The FRED producer is now part of the shared_producers (common_macro_producer)
+# =============================================================================
+
+networks:
+  global_kafka_network:
+    external: true
+
+services:
+  # The producer is now centralized in shared_producers/common_macro_producer
+  # This deployment only contains the consumer and API
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    container_name: macro-model-trainer
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9090
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    networks:
+      - global_kafka_network
+    restart: unless-stopped
+    depends_on:
+      - consumer-health-check
+
+  # Health check service to ensure Kafka is available
+  consumer-health-check:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: macro-health-check
+    networks:
+      - global_kafka_network
+    command: >
+      bash -c "
+        echo 'Waiting for Kafka to be ready...';
+        cub kafka-ready -b kafka:9090 1 120;
+        echo 'Kafka is ready!';
+        exit 0;
+      "
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: macro-prediction-api
+    depends_on:
+      - consumer
+    ports:
+      - "8000:8000"
+    environment:
+      - FRED_API_KEY=${FRED_API_KEY}
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    networks:
+      - global_kafka_network
+    restart: unless-stopped

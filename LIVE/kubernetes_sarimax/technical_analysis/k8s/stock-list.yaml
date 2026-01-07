@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  STOCK_LIST: '["BINANCE:BTCUSDT"]' # this is an example stock list
+  stocks.txt: |-
+    BINANCE:BTCUSDT
+kind: ConfigMap
+metadata:
+  name: stock-tickers-config
+  namespace: default

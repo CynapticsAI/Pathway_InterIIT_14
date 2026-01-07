@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: daily-stock-forecast
+spec:
+  schedule: "30 13 * * 1-5"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+
+  jobTemplate:
+    spec:
+      # number of stocks that would run parallely
+      completions: 5          
+      parallelism: 5           
+      completionMode: Indexed 
+      backoffLimit: 2
+
+      template:
+        spec:
+          containers:
+          - name: forecaster
+            image: docker.io/library/technical_analysis-sarimax:latest
+            imagePullPolicy: IfNotPresent
+
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                line_num=$(($JOB_COMPLETION_INDEX + 1))
+                ticker=$(sed "${line_num}q;d" /etc/config/stocks.txt)
+                export STOCK_TICKER=$ticker
+                echo "Worker Index $JOB_COMPLETION_INDEX assigned to $STOCK_TICKER"
+                python sarimax2.py
+
+            env:
+            - name: JOB_COMPLETION_INDEX
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+
+            volumeMounts:
+            - name: stock-list-volume
+              mountPath: /etc/config
+            - name: output
+              mountPath: /app/output
+
+          restartPolicy: OnFailure
+
+          volumes:
+          - name: stock-list-volume
+            configMap:
+              name: stock-tickers-config
+          - name: output
+            hostPath:
+              path: /home/ubuntu/technical_analysis/sarimaxConsumer/output
+              type: DirectoryOrCreate

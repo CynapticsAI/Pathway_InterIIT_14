@@ -1,0 +1,477 @@
+@import "tailwindcss";
+
+/* ============================================
+   PROFESSIONAL FINANCIAL DESIGN SYSTEM
+   Light & Dark Mode Color Variables
+   ============================================ */
+
+:root {
+  /* Base Colors - ChatGPT-like Dark Grey */
+  --background: #343541;
+  --foreground: #ECECF1;
+  
+  /* Surface Colors - Elevation System */
+  --color-background: #343541;
+  --color-surface: #444654;
+  --color-surface-elevated: #565869;
+  --color-surface-hover: #676B7F;
+  
+  /* Text Colors */
+  --color-text-primary: #ECECF1;
+  --color-text-secondary: #C5C5D2;
+  --color-text-tertiary: #9A9AAF;
+  --color-text-inverse: #202123;
+  
+  /* Border Colors */
+  --color-border: #565869;
+  --color-border-hover: #676B7F;
+  --color-border-focus: #0EA5E9;
+  
+  /* Action Colors */
+  --color-primary: #0EA5E9;
+  --color-primary-hover: #0284C7;
+  --color-secondary: #3B82F6;
+  --color-secondary-hover: #2563EB;
+  --color-accent: #10B981;
+  
+  /* Financial Data Colors */
+  --color-gain: #10B981;
+  --color-loss: #EF4444;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
+  --color-neutral: #6B7280;
+  
+  /* Semantic Aliases */
+  --color-success: #10B981;
+  --color-danger: #EF4444;
+  --color-muted: #64748B;
+  
+  /* Legacy Support (for gradual migration) */
+  --color-foreground: #ECECF1;
+  --color-user-message: linear-gradient(135deg, #0EA5E9 0%, #3B82F6 100%);
+  --color-ai-message: #444654;
+  --color-input-background: #40414F;
+  
+  /* Shadows - Elevation System */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  --shadow-focus: 0 0 0 3px rgba(56, 189, 248, 0.5);
+}
+
+/* Dark Mode - Keep same ChatGPT-like colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Base Colors */
+    --background: #343541;
+    --foreground: #ECECF1;
+    
+    /* Surface Colors */
+    --color-background: #343541;
+    --color-surface: #444654;
+    --color-surface-elevated: #565869;
+    --color-surface-hover: #676B7F;
+    
+    /* Text Colors */
+    --color-text-primary: #ECECF1;
+    --color-text-secondary: #C5C5D2;
+    --color-text-tertiary: #9A9AAF;
+    --color-text-inverse: #202123;
+    
+    /* Border Colors */
+    --color-border: #565869;
+    --color-border-hover: #676B7F;
+    --color-border-focus: #38BDF8;
+    
+    /* Action Colors */
+    --color-primary: #38BDF8;
+    --color-primary-hover: #0EA5E9;
+    --color-secondary: #60A5FA;
+    --color-secondary-hover: #3B82F6;
+    --color-accent: #10B981;
+    
+    /* Financial Data Colors (same) */
+    --color-gain: #10B981;
+    --color-loss: #EF4444;
+    --color-warning: #F59E0B;
+    --color-info: #60A5FA;
+    --color-neutral: #6B7280;
+    
+    /* Semantic Aliases */
+    --color-success: #10B981;
+    --color-danger: #EF4444;
+    --color-muted: #94A3B8;
+    
+    /* Legacy Support */
+    --color-foreground: #ECECF1;
+    --color-user-message: linear-gradient(135deg, #38BDF8 0%, #60A5FA 100%);
+    --color-ai-message: #444654;
+    --color-input-background: #40414F;
+    
+    /* Shadows - Dark Mode (stronger) */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    --shadow-focus: 0 0 0 3px rgba(56, 189, 248, 0.5);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-open-sans), 'Open Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   ELEVATION UTILITIES
+   Use these instead of borders for modern look
+   ============================================ */
+
+.elevation-0 {
+  box-shadow: none;
+}
+
+.elevation-1 {
+  box-shadow: var(--shadow-sm);
+}
+
+.elevation-2 {
+  box-shadow: var(--shadow-base);
+}
+
+.elevation-3 {
+  box-shadow: var(--shadow-md);
+}
+
+.elevation-4 {
+  box-shadow: var(--shadow-lg);
+}
+
+.elevation-5 {
+  box-shadow: var(--shadow-xl);
+}
+
+.elevation-6 {
+  box-shadow: var(--shadow-2xl);
+}
+
+/* Hover Elevation */
+.hover-elevate {
+  transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-elevate:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+  transition: background 200ms;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-surface);
+}
+
+/* ============================================
+   ANIMATION KEYFRAMES
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Smooth transitions - removed universal selector for better performance */
+.transition-smooth {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-colors {
+  transition: background-color 200ms, color 200ms, border-color 200ms;
+}
+
+/* Financial data utility classes */
+.text-gain {
+  color: var(--color-gain);
+}
+
+.text-loss {
+  color: var(--color-loss);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+.text-info {
+  color: var(--color-info);
+}
+
+.text-neutral {
+  color: var(--color-neutral);
+}
+
+.bg-gain {
+  background-color: var(--color-gain);
+}
+
+.bg-loss {
+  background-color: var(--color-loss);
+}
+
+/* Stock data styling */
+.stock-price {
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.percentage {
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Layout utilities */
+.sidebar-collapsed {
+  width: 4rem;
+}
+
+.sidebar-expanded {
+  width: 15rem;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none;
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Focus ring utility */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Prevent text selection on UI elements */
+button, .select-none {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Text utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Agent Flowchart Animations */
+@keyframes agentPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes progressBar {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-agent-pulse {
+  animation: agentPulse 2s ease-in-out infinite;
+}
+
+.animate-progress {
+  animation: progressBar 2s ease-in-out infinite;
+}
+
+/* ReactFlow custom styles */
+.react-flow__node {
+  cursor: pointer;
+}
+
+.react-flow__edge-path {
+  stroke-width: 3 !important;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+.react-flow__handle {
+  opacity: 0;
+}
+
+.react-flow__edge-textwrapper {
+  pointer-events: all;
+}
+
+.react-flow__edge-text {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.react-flow__arrowhead {
+  fill: #8b5cf6;
+}
+
+.react-flow__attribution {
+  opacity: 0.5;
+  font-size: 10px;
+}
+
+/* Live Data Overlay Animations */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shrink-width {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+.animate-shrink-width {
+  animation: shrink-width 5s linear;
+}
+
+/* Scrollbar Styling */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+
+

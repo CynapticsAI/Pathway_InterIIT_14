@@ -1,0 +1,152 @@
+[
+  {
+    "query": "How much tariff did the U.S. apply to Canada under the fentanyl-related action?",
+    "answer": "\"Current Tariff Rates, Canada = 25% for goods that do not claim or qualify for USMCA duty-free preference; 10% for potash imports that do not claim or qualify for USMCA duty-free preference.\"\n\n\"Key Dates, Canada = • Feb. 1: President issues E.O. 14193 to impose a 25% tariff on most imports from Canada and 10% tariff on Canadian energy products, to go into effect February 4.\"",
+    "ground_truth": "Fentanyl-related Canada 25% on most goods; 10% on potash and Canadian energy products.",
+    "source": "Presidential 2025 Tariff Actions Table 1 Page 1"
+  },
+  {
+    "query": "What tariff rate did the United States apply to Mexico under the fentanyl and migration measure?",
+    "answer": "\"Feb. 1: President issues E.O. 14194 to impose a 25% tariff on imports from Mexico, to go into effect February 4.\"\n\n\"Jul. 12: President posts a letter to the President of Mexico on social media, announcing a 30% tariff to go into effect Aug. 1,\"",
+    "ground_truth": "Fentanyl & Migration Mexico 25% initially; increased to 30% effective Aug. 1.",
+    "source": "Presidential 2025 Tariff Actions Table 1 Page 1"
+  },
+  {
+    "query": "How much tariff did the United States impose on China in 2025?",
+    "answer": "\"China All goods from China. Products Affected, 25% on most goods effective as of March 4, 2025 ; USMCA exception and 10% on potash imports effective as of March 7, 2025 .\"\n\n\"President issues E.O. 14195 to impose a 10% tariff on all goods from China, effective February 4. President increases tariff rate from 10% to 20%.\"",
+    "ground_truth": "Fentanyl-related China 25% on most goods (effective March 4); 10% on potash imports.",
+    "source": "Presidential 2025 Tariff Table 1 Page 1"
+  },
+  {
+    "query": "What tariff rate was applied globally under the trade deficit reciprocal action?",
+    "answer": "\"Trade deficit-related tariff action on global partners (E.O. 14257, as amended), 25% on most goods effective as of March 4, 2025 ; USMCA exception and 10% on potash imports effective as of March 7, 2025 .\"",
+    "ground_truth": "Global 25% on most goods effective March 4, 2025; 10% on potash imports.",
+    "source": "Presidential 2025 Tariff Table 1 Page 1"
+  },
+  {
+    "query": "What tariff was imposed on Venezuelan oil?",
+    "answer": "\"Venezuelan oil action on designated countries (E.O. 14245) Countries Affected Select countries as designated by the U.S. Secretary of State. Products Affected All goods from designated countries Current Tariff Rate 25% Current Status Effective as of April 2, 2025 . Key Dates • Mar. 24: President issues E.O. 14245 to impose 25% tariffs on all goods from countries that import Venezuelan oil, 'whether directly from Venezuela or indirectly through third parties.'\"",
+    "ground_truth": "Venezuelan Oil Designated 25% on all goods from countries designated by the Sec. of State.",
+    "source": "Presidential 2025 Tariff Table 1 Page 1"
+  },
+  {
+    "query": "How much tariff did Brazil face under U.S. actions?",
+    "answer": "\"Countries Affected, 1 = Brazil.\"\n\n\"Tariff Rate, 1 = 40%.\"",
+    "ground_truth": "Brazil 40%.",
+    "source": "Presidential 2025 Tariff Table 1 Page 1"
+  },
+  {
+    "query": "What tariffs apply to steel under Section 232?",
+    "answer": "\"United States imposes steel and aluminum tariffs of 25% and 10%, respectively.\"\n\n\"President Trump increases tariff on Turkish steel from 25% to 50%.\"\n\n\"President Trump decreases tariff on Turkish steel from 50% to 25%.\"\n\n\"Current Tariff Rate, All Countries = 50% globally; 25% for imports from the UK.\"",
+    "ground_truth": "Steel Global 50% globally; 25% on imports from the United Kingdom (UK).",
+    "source": "Presidential 2025 Tariff Table 1 Page 1"
+  },
+  {
+    "query": "How much tariff was applied to automobiles and parts?",
+    "answer": "Mar. 26: President proclaims a 25% tariff on imports of automobiles and parts.\n\nCurrent Tariff Rate, All Countries = 25% globally; 10% on parts from the UK and 10% tariff-rate quota (TRQ) on vehicles from the UK.",
+    "ground_truth": "Automobiles & Parts Global 25% globally; 10% on parts from the UK and 10% tariff-rate quota (TRQ) on vehicles from the UK.",
+    "source": "Presidential 2025 Tariff Table 1 Page 1"
+  },
+  {
+    "query": "What tariff applies to copper imports?",
+    "answer": "\"Current Tariff Rate, 1 = 50% on copper content of a covered product.\"\n\n\"Copper, Global = Global. Copper, 50% globally; 25% on imports from the United Kingdom (UK). = 50% globally on semi-finished copper products.\"",
+    "ground_truth": "Copper Global 50% globally on semi-finished copper products.",
+    "source": "Presidential 2025 Tariff Table 1 Page 1"
+  },
+  {
+    "query": "How many imports became subject to increased tariffs in 2019?",
+    "answer": "\"- 10/9/2019-Pursuant to Sections 301, 304, and 306 of the Trade Act of 1974, USTR determines to impose additional ad valorem duties of 10% and 25% on $7.5 billion worth of U.S. imports from the EU, including the United Kingdom.\"",
+    "ground_truth": "Additional duties of 10% and 25% on $7.5 billion worth of U.S. imports from the EU.",
+    "source": "Trump Tariff FAQ Page 2"
+  },
+  {
+    "query": "What products from China were targeted by tariffs?",
+    "answer": "\"Products Affected, 1 = Ship-to-shore cranes and other cargo handling equipment.\"\n\n\"U.S. tariffs on steel and aluminum imports, Complainant country = China.\"\n\n\"U.S. safeguard measure on large residential washers imports, Complainant country = China.\"",
+    "ground_truth": "Ship-to-shore cranes and cargo handling equipment, steel, aluminum, and large residential washers.",
+    "source": "Trump Tariff FAQ Page 1 Summary"
+  },
+  {
+    "query": "Which U.S. exports were impacted by retaliatory tariffs?",
+    "answer": "\"Retaliatory tariffs are affecting several U.S. exports, including agricultural products such as soybeans and pork, motor vehicles, steel, and aluminum.\"\n\n\"The value of U.S. exports affected by retaliatory tariffs issued or announced by China, Canada and the European Union, as of April 4, was $330 billion.\"",
+    "ground_truth": "Agricultural products (soybeans and pork), motor vehicles, steel, and aluminum.",
+    "source": "Trump Tariff FAQ Page 2"
+  },
+  {
+    "query": "How much did U.S. wages increase after TCJA?",
+    "answer": "\"Record high wage and income gains: the CEA predicted real wages would increase by $4,000 after full phase-in of the reforms.\"\n\n\"As detailed by the House Ways and Means Committee, wages increased by 4.9 percent under the TCJA, and the rate of wage growth was 50 percent higher for working-class families than households with higher incomes.\"",
+    "ground_truth": "Wages increased by 4.9 percent under the TCJA.",
+    "source": "Economic Impact of Extending TCJA Page 2"
+  },
+  {
+    "query": "How big was the predicted wage increase under TCJA extension?",
+    "answer": "the CEA predicted real wages would increase by $4,000 after full phase-in of the reforms.\n\nwages increased by 4.9 percent under the TCJA.",
+    "ground_truth": "Predicted real wages would increase by $4,000 after full phase-in.",
+    "source": "Economic Impact of Extending TCJA Page 2"
+  },
+  {
+    "query": "How many full time jobs would TCJA extension save?",
+    "answer": "According to EY, one of the world's largest consulting firms, extending TCJA provisions would save almost 6 million jobs, boost aggregate wages by $540 billion, and increase GDP by $1.1 trillion compared to if TCJA expires.",
+    "ground_truth": "Almost 6 million jobs.",
+    "source": "Economic Impact of Extending TCJA Page 2"
+  },
+  {
+    "query": "How much did U.S. household income rise after TCJA?",
+    "answer": "Data show that median household income rose $6,400, with $4,992 attributed to wages, based on wages and salaries comprising 78 percent of income.",
+    "ground_truth": "Median household income rose $6,400.",
+    "source": "Economic Impact of Extending TCJA Page 6"
+  },
+  {
+    "query": "How much did retaliatory tariffs affect exports?",
+    "answer": "\"Using 2017 values, U.S. imports subject to the increased tariffs accounted for 12% of annual U.S. imports, while exports subject to retaliatory tariffs accounted for 8% of annual U.S. exports.\"",
+    "ground_truth": "Exports subject to retaliatory tariffs accounted for 8% of annual U.S. exports.",
+    "source": "Trump Tariff FAQ Page 2"
+  },
+  {
+    "query": "How much tariff applies to wind turbines?",
+    "answer": "\"Investigation into Wind Turbines (90 Federal Register 41380), … Tariff Rate, 1 = TBD.\"\n\n\"Wind Turbines, Global = TBD. Wind Turbines, 50% globally; 25% on imports from the United Kingdom (UK). = Investigation initiated (August 2025).\"",
+    "ground_truth": "Wind Turbines TBD; Investigation initiated August 2025.",
+    "source": "Presidential 2025 Tariff Table 1 Page 1"
+  },
+  {
+    "query": "What tariff affected washing machines?",
+    "answer": "- Table 1. Section 201 Investigations on Solar Products and Washing Machines  \n    • 6/5/2017 U.S. industry petition initiates ITC injury investigation on large residential washers.  \n    • 10/5/2017 ITC makes affirmative large residential washers injury determination.  \n    • 1/23/2018 President Trump proclaims actions on solar cells/modules and large residential washers, effective February 7, 2018.  \n    • 1/23/2020 President Trump proclaims TRQ allocation limit for large residential washers at 1.2 million per quarter beginning February 7, 2020, in order to eliminate possible concentration of imports in single quarter.",
+    "ground_truth": "Large residential washers (Section 201 action effective February 7, 2018).",
+    "source": "Trump Tariff FAQ Page 1 Summary"
+  },
+  {
+    "query": "How many Section 201 investigations were conducted?",
+    "answer": "\"The ITC conducted 73 Section 201 investigations from 1975 to 2001.\"",
+    "ground_truth": "The ITC conducted 73 Section 201 investigations from 1975 to 2001.",
+    "source": "Trump Tariff FAQ Page 5"
+  },
+  {
+    "query": "How many investigations resulted in affirmative findings under Section 232?",
+    "answer": "Prior to the Trump Administration, there were 26 Section 232 investigations resulting in nine affirmative findings by Commerce.",
+    "ground_truth": "Prior to the Trump Administration, there were 26 Section 232 investigations resulting in nine affirmative findings by Commerce.",
+    "source": "Trump Tariff FAQ Page 6"
+  },
+  {
+    "query": "How many Section 301 cases were initiated between 1975 and 2016?",
+    "answer": "Between 1975 and 2016, the United States initiated 124 cases under Section 301, 29 of them after the establishment of the WTO in 1995.",
+    "ground_truth": "Between 1975 and 2016, the United States initiated 124 cases under Section 301.",
+    "source": "Trump Tariff FAQ Page 6"
+  },
+  {
+    "query": "How much tariff ceiling was negotiated for EU goods?",
+    "answer": "\"The terms include a 15% tariff ceiling for EU goods and exemptions for certain EU products (unavailable natural resources (e.g., cork), aircraft and parts, and certain pharmaceuticals) on Sept. 1.\"",
+    "ground_truth": "15% tariff ceiling for EU goods.",
+    "source": "Presidential Tariff 2025 Page 4"
+  },
+  {
+    "query": "How much did TTJA predict GDP would grow?",
+    "answer": "\"the CEA predicted business tax reforms would result in a 2.0 to 4.0 percent higher long-run level of real GDP, with another 0.4 to 1.6 percent higher level of real GDP from individual tax reforms.\"\n\n\"By the end of 2019, the level of real GDP was already 2.5 percent higher relative to the CBO's pre-TCJA baseline.\"",
+    "ground_truth": "CEA predicted 2.0 to 4.0 percent higher long-run level of real GDP.",
+    "source": "Economic Impact of Extending TCJA Page 2"
+  },
+  {
+    "query": "How much would take home pay increase for a median household?",
+    "answer": "\"Data show that median household income rose $6,400, with $4,992 attributed to wages, based on wages and salaries comprising 78 percent of income.\"",
+    "ground_truth": "Median household income rose $6,400.",
+    "source": "Economic Impact of Extending TCJA Page 2"
+  }
+]

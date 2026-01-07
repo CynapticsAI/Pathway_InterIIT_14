@@ -1,0 +1,15 @@
+#!/bin/bash
+# Quick commands to deploy to remote server
+
+echo "Copy to remote server:"
+echo "scp docker-compose.yml ubuntu@13.51.109.135:~/pway-stock/"
+echo ""
+echo "Then SSH and run these commands:"
+echo "ssh ubuntu@13.51.109.135"
+echo "cd ~/pway-stock"
+echo "docker-compose stop kafka"
+echo "docker-compose rm -f kafka"
+echo "docker-compose up -d kafka"
+echo "sleep 30"
+echo "docker logs pway-kafka --tail 50"
+echo "docker-compose restart"

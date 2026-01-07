@@ -1,0 +1,17 @@
+# Dockerfile.producer
+FROM python:3.12-slim
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY pathway_fred_producer.py .
+
+# Use environment variable for Kafka address
+CMD python pathway_fred_producer.py \
+    --csv /app/data/fred_stream.csv \
+    --kafka ${KAFKA_BOOTSTRAP_SERVERS:-kafka:29092} \
+    --fetch-interval 3600 \
+    --start-date 1990-01-01

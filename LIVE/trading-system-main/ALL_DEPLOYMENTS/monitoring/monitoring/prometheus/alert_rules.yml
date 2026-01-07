@@ -1,0 +1,202 @@
+# =============================================================================
+# PROMETHEUS ALERTING RULES
+# =============================================================================
+# Alert rules for Kafka, containers, and system health monitoring
+# =============================================================================
+
+groups:
+  # ===========================================================================
+  # KAFKA ALERTS
+  # ===========================================================================
+  - name: kafka_alerts
+    rules:
+      # Kafka broker is down
+      - alert: KafkaBrokerDown
+        expr: kafka_brokers < 1
+        for: 1m
+        labels:
+          severity: critical
+          component: kafka
+        annotations:
+          summary: "Kafka broker is down"
+          description: "No Kafka brokers are available. Immediate action required."
+
+      # Consumer group lag is too high
+      - alert: KafkaConsumerLagHigh
+        expr: kafka_consumergroup_lag > 10000
+        for: 5m
+        labels:
+          severity: warning
+          component: kafka
+        annotations:
+          summary: "High consumer lag detected"
+          description: "Consumer group {{ $labels.consumergroup }} has lag of {{ $value }} on topic {{ $labels.topic }}"
+
+      # Consumer group lag critical
+      - alert: KafkaConsumerLagCritical
+        expr: kafka_consumergroup_lag > 50000
+        for: 2m
+        labels:
+          severity: critical
+          component: kafka
+        annotations:
+          summary: "Critical consumer lag detected"
+          description: "Consumer group {{ $labels.consumergroup }} has critical lag of {{ $value }} on topic {{ $labels.topic }}"
+
+      # Topic has no messages for too long (dead producer)
+      - alert: KafkaTopicNoMessages
+        expr: rate(kafka_topic_partition_current_offset[5m]) == 0
+        for: 15m
+        labels:
+          severity: warning
+          component: kafka
+        annotations:
+          summary: "No messages being produced to topic"
+          description: "Topic {{ $labels.topic }} partition {{ $labels.partition }} has received no messages for 15 minutes"
+
+      # Under-replicated partitions
+      - alert: KafkaUnderReplicatedPartitions
+        expr: kafka_topic_partition_under_replicated_partition > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: kafka
+        annotations:
+          summary: "Under-replicated partitions detected"
+          description: "Topic {{ $labels.topic }} has {{ $value }} under-replicated partitions"
+
+  # ===========================================================================
+  # CONTAINER ALERTS
+  # ===========================================================================
+  - name: container_alerts
+    rules:
+      # Container is down
+      - alert: ContainerDown
+        expr: absent(container_last_seen{name=~".+"})
+        for: 1m
+        labels:
+          severity: critical
+          component: docker
+        annotations:
+          summary: "Container is down"
+          description: "Container {{ $labels.name }} is not running"
+
+      # Container high CPU usage
+      - alert: ContainerHighCPU
+        expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) by (name) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: docker
+        annotations:
+          summary: "Container high CPU usage"
+          description: "Container {{ $labels.name }} is using {{ printf \"%.2f\" $value }}% CPU"
+
+      # Container high memory usage
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes{name!=""} / container_spec_memory_limit_bytes{name!=""} * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: docker
+        annotations:
+          summary: "Container high memory usage"
+          description: "Container {{ $labels.name }} is using {{ printf \"%.2f\" $value }}% of its memory limit"
+
+      # Container restarting frequently
+      - alert: ContainerRestartingFrequently
+        expr: increase(container_restart_count[1h]) > 3
+        for: 0m
+        labels:
+          severity: warning
+          component: docker
+        annotations:
+          summary: "Container restarting frequently"
+          description: "Container {{ $labels.name }} has restarted {{ $value }} times in the last hour"
+
+  # ===========================================================================
+  # HOST SYSTEM ALERTS
+  # ===========================================================================
+  - name: host_alerts
+    rules:
+      # High CPU usage
+      - alert: HostHighCPU
+        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: host
+        annotations:
+          summary: "Host high CPU usage"
+          description: "Host CPU usage is {{ printf \"%.2f\" $value }}%"
+
+      # High memory usage
+      - alert: HostHighMemory
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: host
+        annotations:
+          summary: "Host high memory usage"
+          description: "Host memory usage is {{ printf \"%.2f\" $value }}%"
+
+      # Low disk space
+      - alert: HostLowDiskSpace
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|fuse.lxcfs"} * 100) < 15
+        for: 5m
+        labels:
+          severity: warning
+          component: host
+        annotations:
+          summary: "Host low disk space"
+          description: "Filesystem {{ $labels.mountpoint }} has only {{ printf \"%.2f\" $value }}% free space"
+
+      # Disk space critical
+      - alert: HostDiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|fuse.lxcfs"} * 100) < 5
+        for: 1m
+        labels:
+          severity: critical
+          component: host
+        annotations:
+          summary: "Host disk space critical"
+          description: "Filesystem {{ $labels.mountpoint }} has only {{ printf \"%.2f\" $value }}% free space"
+
+  # ===========================================================================
+  # TRADING SYSTEM SPECIFIC ALERTS
+  # ===========================================================================
+  - name: trading_system_alerts
+    rules:
+      # Producer containers not running
+      - alert: ProducerContainerDown
+        expr: absent(container_last_seen{name=~"common-.*-producer"})
+        for: 2m
+        labels:
+          severity: critical
+          component: trading
+        annotations:
+          summary: "Producer container is down"
+          description: "A critical producer container is not running"
+
+      # No stock data for 5 minutes
+      - alert: NoStockDataReceived
+        expr: rate(kafka_topic_partition_current_offset{topic="stock_data"}[5m]) == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: trading
+        annotations:
+          summary: "No stock data being received"
+          description: "No messages have been produced to stock_data topic for 5 minutes"
+
+      # No sentiment data for 10 minutes
+      - alert: NoSentimentDataReceived
+        expr: rate(kafka_topic_partition_current_offset{topic="sentiment_scores"}[10m]) == 0
+        for: 10m
+        labels:
+          severity: warning
+          component: trading
+        annotations:
+          summary: "No sentiment data being received"
+          description: "No messages have been produced to sentiment_scores topic for 10 minutes"

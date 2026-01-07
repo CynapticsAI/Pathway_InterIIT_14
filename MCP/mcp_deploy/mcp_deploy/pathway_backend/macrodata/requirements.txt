@@ -1,0 +1,16 @@
+# requirements.txt
+fastapi
+uvicorn[standard]
+pydantic
+pandas
+pathway
+numpy
+xgboost
+scikit-learn
+yfinance
+fredapi
+kafka-python
+python-multipart
+airbyte
+matplotlib
+torch

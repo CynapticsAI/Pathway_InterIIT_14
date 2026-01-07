@@ -1,0 +1,38 @@
+{
+  "VWAP_Mean_Reversion": {
+    "function": "run_vwap",
+    "params": ["vwap_window", "z_threshold", "trend_ma"],
+    "grid": {
+      "vwap_window": [20, 40, 60, 120],
+      "z_threshold": [1.5, 2.0, 2.5, 3.0],
+      "trend_ma": [100, 200, 300]
+    }
+  },
+
+  "RSI_Mean_Reversion": {
+    "function": "run_rsi",
+    "params": ["rsi_period", "oversold_level", "overbought_level"],
+    "grid": {
+      "rsi_period": [10, 14, 20, 30],
+      "oversold_level": [25, 30, 35],
+      "overbought_level": [65, 70, 75]
+    }
+  },
+
+  "Bollinger_Band_Reversion": {
+    "function": "run_bollinger",
+    "params": ["bb_period", "bb_std_dev"],
+    "grid": {
+      "bb_period": [20, 40, 60, 80],
+      "bb_std_dev": [1.5, 2.0, 2.5]
+    }
+  },
+
+  "Donchian_Channel_Breakout": {
+    "function": "run_donchian",
+    "params": ["channel_period"],
+    "grid": {
+      "channel_period": [20, 50, 100, 150]
+    }
+  }
+}

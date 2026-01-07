@@ -1,0 +1,3 @@
+pathway
+aiohttp
+beautifulsoup4

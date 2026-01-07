@@ -1,0 +1,65 @@
+services:
+  producer:
+    image : pgold/producer:macos
+    build:
+      args :
+        API_KEY : $FINHUB_API_KEY
+      context : ./producer
+    depends_on: 
+      - kafka
+  
+  ohlc:
+    image : pgoldt/ohlc:macos
+    build: 
+      context: ./ohlc
+    
+    depends_on: 
+      - producer
+      - postgres
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - zookeeper
+
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  
+
+  postgres:
+    image: postgres:15
+    environment: 
+      POSTGRES_PASSWORD: pass
+    ports: # Remove after debug
+      - "5431:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+
+
+  live_rag:
+    image: pgoldt/live_rag:macos
+    build:
+      context: ./live_rag/live_rag
+    ports:
+      - "${PATHWAY_PORT:-8000}:${PATHWAY_PORT:-8000}"
+    environment:
+      PATHWAY_PORT: "${PATHWAY_PORT:-8000}"
+      PATHWAY_LICENSE_KEY: $PATHWAY_LICENSE_KEY
+      GEMINI_API_KEY: $GEMINI_API_KEY
+    volumes:
+      - ./live_rag/live_rag/data:/app/data
+      - ./live_rag/live_rag/Cache:/app/Cache

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme Preview - Stock AI Assistant</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0F172A;
+      color: #F1F5F9;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #0EA5E9, #3B82F6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #94A3B8;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+
+    .themes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .theme-card {
+      background: #1E293B;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .theme-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .theme-header {
+      margin-bottom: 1rem;
+    }
+
+    .theme-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .theme-desc {
+      font-size: 0.875rem;
+      color: #94A3B8;
+    }
+
+    .theme-code {
+      background: #0F172A;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin: 1rem 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      color: #0EA5E9;
+      border: 1px solid #334155;
+    }
+
+    .color-palette {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .color-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .color-swatch {
+      width: 40px;
+      height: 40px;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      border: 2px solid #334155;
+    }
+
+    .color-label {
+      font-size: 0.75rem;
+      color: #CBD5E1;
+    }
+
+    .demo-section {
+      background: #1E293B;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+
+    .demo-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .demo-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .vibe-tag {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+
+    .instructions {
+      background: #1E293B;
+      border-left: 4px solid #0EA5E9;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .instructions h2 {
+      color: #0EA5E9;
+      margin-bottom: 0.5rem;
+    }
+
+    .instructions code {
+      background: #0F172A;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      color: #0EA5E9;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Theme System Preview</h1>
+    <p class="subtitle">Choose your perfect color scheme - Just change one constant!</p>
+
+    <div class="instructions">
+      <h2>📝 How to Apply</h2>
+      <p>Edit <code>/lib/themes.ts</code> line 249 and change:</p>
+      <p style="margin-top: 0.5rem;"><code>export const ACTIVE_THEME: ThemeName = 'YOUR_CHOICE';</code></p>
+    </div>
+
+    <div class="themes-grid">
+      <!-- Sky Blue -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #0EA5E9;">1. Sky Blue Professional ✨</div>
+          <div class="theme-desc">Professional, clean, modern financial apps</div>
+          <div class="vibe-tag" style="background: #0EA5E915; color: #0EA5E9;">Trustworthy • Calm • Corporate</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'sky-blue'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #0EA5E9;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #06B6D4;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emerald Pro -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #10B981;">2. Emerald Professional 💚</div>
+          <div class="theme-desc">Growth-focused, investment platforms</div>
+          <div class="vibe-tag" style="background: #10B98115; color: #10B981;">Prosperous • Natural • Growth</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'emerald-pro'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #10B981;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #14B8A6;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Violet Luxury -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #8B5CF6;">3. Violet Luxury 💜</div>
+          <div class="theme-desc">Premium, high-end financial services</div>
+          <div class="vibe-tag" style="background: #8B5CF615; color: #8B5CF6;">Luxurious • Sophisticated • Exclusive</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'violet-luxury'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #8B5CF6;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #A78BFA;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orange Energy -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #F97316;">4. Orange Energy 🧡</div>
+          <div class="theme-desc">Dynamic trading platforms, crypto apps</div>
+          <div class="vibe-tag" style="background: #F9731615; color: #F97316;">Energetic • Bold • Action</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'orange-energy'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #F97316;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #FB923C;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rose Elegant -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #F43F5E;">5. Rose Elegant 🌹</div>
+          <div class="theme-desc">Modern fintech, contemporary design</div>
+          <div class="vibe-tag" style="background: #F43F5E15; color: #F43F5E;">Elegant • Refined • Modern</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'rose-elegant'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #F43F5E;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #FB7185;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slate Minimal -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #64748B;">6. Slate Minimal ⚫</div>
+          <div class="theme-desc">Minimalist, data-focused dashboards</div>
+          <div class="vibe-tag" style="background: #64748B15; color: #94A3B8;">Neutral • Clean • Minimal</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'slate-minimal'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #475569;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #64748B;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indigo Deep -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #6366F1;">7. Indigo Deep 🔵</div>
+          <div class="theme-desc">Traditional banking, enterprise apps</div>
+          <div class="vibe-tag" style="background: #6366F115; color: #6366F1;">Professional • Trustworthy • Corporate</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'indigo-deep'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #6366F1;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #818CF8;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teal Modern -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #14B8A6;">8. Teal Modern 🌊</div>
+          <div class="theme-desc">Modern startups, fresh brands</div>
+          <div class="vibe-tag" style="background: #14B8A615; color: #14B8A6;">Contemporary • Fresh • Innovative</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'teal-modern'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #14B8A6;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #2DD4BF;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amber Warm -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #F59E0B;">9. Amber Warm 🟡</div>
+          <div class="theme-desc">Friendly fintech, personal finance</div>
+          <div class="vibe-tag" style="background: #F59E0B15; color: #F59E0B;">Warm • Inviting • Approachable</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'amber-warm'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #F59E0B;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #FCD34D;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Red Bold -->
+      <div class="theme-card">
+        <div class="theme-header">
+          <div class="theme-name" style="color: #DC2626;">10. Red Bold 🔴</div>
+          <div class="theme-desc">High-energy trading, attention-grabbing</div>
+          <div class="vibe-tag" style="background: #DC262615; color: #EF4444;">Bold • Powerful • Urgent</div>
+        </div>
+        <div class="theme-code">ACTIVE_THEME = 'red-bold'</div>
+        <div class="color-palette">
+          <div class="color-item">
+            <div class="color-swatch" style="background: #DC2626;"></div>
+            <div class="color-label">Primary</div>
+          </div>
+          <div class="color-item">
+            <div class="color-swatch" style="background: #EF4444;"></div>
+            <div class="color-label">Accent</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2 class="demo-title">💡 Quick Tips</h2>
+      <ul style="line-height: 1.8; color: #CBD5E1;">
+        <li><strong style="color: #0EA5E9;">Financial Data Colors:</strong> Success/Danger colors (green/red) stay consistent across all themes</li>
+        <li><strong style="color: #0EA5E9;">Instant Preview:</strong> Change ACTIVE_THEME constant and refresh browser</li>
+        <li><strong style="color: #0EA5E9;">Works Everywhere:</strong> Theme applies to buttons, icons, charts, forms automatically</li>
+        <li><strong style="color: #0EA5E9;">Dark Mode:</strong> All themes work perfectly in both light and dark modes</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

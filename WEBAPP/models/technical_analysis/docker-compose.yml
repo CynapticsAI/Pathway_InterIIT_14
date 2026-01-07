@@ -1,0 +1,163 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+  finnhub_producer:
+    build:
+      context: ./finnhub_producer
+    depends_on:
+      - kafka
+
+  market_breadth:
+    build:
+      context: ./market_breadth
+    depends_on:
+      - kafka
+      - finnhub_producer
+    volumes:
+      - ./market_breadth:/app/output
+    ports:
+      - "8002:8002" 
+  spike_detector:
+    build:
+      context: ./spike_detector
+    depends_on:
+      - kafka
+      - finnhub_producer
+    volumes:
+      - ./spike_detector:/app/output
+    ports:
+      - "8001:8001"
+    environment:
+      BOKEH_DEFAULT_SERVER_HOST : "0.0.0.0" 
+  # pnl:
+  #   build:
+  #     context: ./pnl
+  #   depends_on:
+  #     - kafka
+  #     - finnhub_producer
+  #   volumes:
+  #     - ./pnl:/app/output
+ 
+
+  sarimax:
+    build:
+      context: ./sarimaxConsumer
+    depends_on:
+      - kafka
+      - finnhub_producer
+      - news
+    volumes:
+      - ./sarimaxConsumer:/app/output
+    ports:
+      - "8007:8007"
+ 
+  news:
+    build:
+      context: ./news_producer
+    volumes:
+      - ./news_producer:/app/output
+    depends_on:
+      - kafka
+      
+#  rrg_json:
+#    build:
+#      context: ./rrg
+#    volumes:
+#      - ./rrg:/app/output
+
+  # PostgreSQL Database for Django API
+#   db:
+#     image: postgres:15-alpine
+#     environment:
+#       POSTGRES_DB: trading_api
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     ports:
+#       - "5432:5432"
+  
+#   # Redis for Django Channels
+#   redis:
+#     image: redis:7-alpine
+#     ports:
+#       - "6379:6379"
+  
+#   # Django API Server
+#   django_api:
+#     build:
+#       context: ./django_api
+#     depends_on:
+#       - db
+#       - redis
+#       - kafka
+#     volumes:
+#       - ./django_api:/app
+#       - ./spike_detector/output:/data/spike_detector
+#       - ./market_breadth/output:/data/market_breadth
+#       - ./pnl/output:/data/pnl
+#       - ./sarimaxConsumer/output:/data/sarimax
+#       - ./rrg/output:/data/rrg
+#       - ./news_producer/output:/data/news
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       DEBUG: "True"
+#       SECRET_KEY: "django-insecure-dev-key-change-in-production"
+#       DB_NAME: trading_api
+#       DB_USER: postgres
+#       DB_PASSWORD: postgres
+#       DB_HOST: db
+#       DB_PORT: 5432
+#       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#       REDIS_HOST: redis
+#       REDIS_PORT: 6379
+#     command: >
+#       sh -c "python manage.py migrate &&
+#              python manage.py collectstatic --noinput &&
+#              daphne -b 0.0.0.0 -p 8000 config.asgi:application"
+  
+#   # Django JSONL Consumer (runs in background)
+#   django_consumer:
+#     build:
+#       context: ./django_api
+#     depends_on:
+#       - django_api
+#       - db
+#     volumes:
+#       - ./django_api:/app
+#       - ./spike_detector/output:/data/spike_detector
+#       - ./market_breadth:/data/market_breadth
+#       - ./pnl:/data/pnl
+#       - ./sarimaxConsumer:/data/sarimax
+#       - ./rrg:/data/rrg
+#       - ./news_producer:/data/news
+#     environment:
+#       DEBUG: "True"
+#       DB_NAME: trading_api
+#       DB_USER: postgres
+#       DB_PASSWORD: postgres
+#       DB_HOST: db
+#       DB_PORT: 5432
+#     command: python manage.py consume_all_jsonl --base-path /data --interval 2
+
+# volumes:
+#   postgres_data:
+

@@ -1,0 +1,10 @@
+Service,Strategy,Return,Sharpe,Beta,Vol
+Creator,Mean-Variance,0.00%,0.00,0.00,0.00%
+Creator,CVaR,0.00%,0.00,0.00,0.00%
+Creator,Omega,0.00%,0.00,0.00,0.00%
+Rebalancer,Mean-Variance,0.00%,0.00,0.00,0.00%
+Rebalancer,CVaR,0.00%,0.00,0.00,0.00%
+Rebalancer,Omega,0.00%,0.00,0.00,0.00%
+Diversifier,Mean-Variance,0.00%,0.00,0.00,0.00%
+Diversifier,CVaR,0.00%,0.00,0.00,0.00%
+Diversifier,Omega,0.00%,0.00,0.00,0.00%

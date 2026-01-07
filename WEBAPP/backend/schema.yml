@@ -1,0 +1,3021 @@
+openapi: 3.0.3
+info:
+  title: Pway Stock API
+  version: 1.0.0
+  description: Stock Analysis Chatbot API with user authentication, chat conversations,
+    and real-time stock data
+paths:
+  /api/auth/change-password/:
+    post:
+      operationId: auth_change_password_create
+      description: "\n    Change password for the authenticated user.\n    \n    **Required:**\n
+        \   - Current password (for verification)\n    - New password\n    - New password
+        confirmation\n    \n    **Security:**\n    Password must meet strength requirements
+        (min length, special characters, etc.)\n    "
+      summary: Change password
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+            examples:
+              ChangePassword:
+                value:
+                  old_password: OldPass123!
+                  new_password: NewSecurePass123!
+                  new_password2: NewSecurePass123!
+                summary: Change Password
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/auth/forgot-password/:
+    post:
+      operationId: auth_forgot_password_create
+      description: "\n    Request a password reset link to be sent via email.\n    \n
+        \   **Process:**\n    1. User provides their email address\n    2. System
+        validates email exists\n    3. Password reset token is generated\n    4. Email
+        with reset link is sent\n    \n    **Token Validity:** 1 hour\n    \n    **Security
+        Note:** For security, the API always returns success even if email doesn't
+        exist.\n    "
+      summary: Request password reset
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequestRequest'
+            examples:
+              RequestReset:
+                value:
+                  email: john@example.com
+                summary: Request Reset
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+          description: ''
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: "\n    Authenticate user and receive JWT access and refresh tokens.\n
+        \   \n    **Authentication Flow:**\n    1. User provides email and password\n
+        \   2. System validates credentials\n    3. JWT tokens are generated (access
+        + refresh)\n    4. User session is created and tracked\n    5. Activity is
+        logged\n    \n    **Token Usage:**\n    - **Access Token**: Use for authenticated
+        API requests (expires in 1 hour)\n    - **Refresh Token**: Use to get new
+        access token (expires in 7 days)\n    \n    **Next Steps:**\n    - Store tokens
+        securely (httpOnly cookies recommended)\n    - Include access token in Authorization
+        header: `Bearer <access_token>`\n    - Use refresh token when access token
+        expires\n    "
+      summary: Login with email and password
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+            examples:
+              LoginRequest:
+                value:
+                  email: john@example.com
+                  password: SecurePass123!
+                summary: Login Request
+                description: Login with email and password
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  tokens:
+                    type: object
+                    properties:
+                      access:
+                        type: string
+                      refresh:
+                        type: string
+                  user:
+                    type: object
+              examples:
+                SuccessResponse:
+                  value:
+                    message: Login successful
+                    tokens:
+                      access: eyJ0eXAiOiJKV1QiLCJhbGc...
+                      refresh: eyJ0eXAiOiJKV1QiLCJhbGc...
+                    user:
+                      id: 1
+                      username: john_doe
+                      email: john@example.com
+                      email_verified: true
+                  summary: Success Response
+                  description: Login successful with JWT tokens
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: "\n    Logout the authenticated user and invalidate all active
+        sessions.\n    \n    **Actions Performed:**\n    - Deactivates all active
+        user sessions\n    - Logs the logout activity\n    - Clears Django session\n
+        \   \n    **Security Note:**\n    This invalidates all sessions, including
+        other devices. Users will need to login again on all devices.\n    "
+      summary: Logout current user
+      tags:
+      - Authentication
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logout successful
+              examples:
+                SuccessResponse:
+                  value:
+                    message: Logout successful
+                  summary: Success Response
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: "\n    Register a new user account with email and password.\n    \n
+        \   **Process:**\n    1. User provides username, email, and password\n    2.
+        System validates the data (unique email, password strength)\n    3. User account
+        is created (email not verified yet)\n    4. Email verification token is generated\n
+        \   5. Verification email is sent\n    \n    **Next Steps:**\n    - Check
+        email for verification link\n    - Verify email using the token\n    - Login
+        to get JWT tokens\n    "
+      summary: Register a new user
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+            examples:
+              RegistrationExample:
+                value:
+                  username: john_doe
+                  email: john@example.com
+                  password: SecurePass123!
+                  password2: SecurePass123!
+                  first_name: John
+                  last_name: Doe
+                summary: Registration Example
+                description: Example request to register a new user
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomUser'
+              examples:
+                SuccessResponse:
+                  value:
+                    message: User registered successfully. Please check your email
+                      to verify your account.
+                    user:
+                      id: 1
+                      username: john_doe
+                      email: john@example.com
+                      first_name: John
+                      last_name: Doe
+                      email_verified: false
+                  summary: Success Response
+                  description: Successful registration response
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/auth/reset-password/:
+    post:
+      operationId: auth_reset_password_create
+      description: "\n    Reset password using the token received via email.\n    \n
+        \   **Process:**\n    1. User receives reset token via email\n    2. User
+        provides token and new password\n    3. System validates token (not expired,
+        not used)\n    4. Password is updated\n    5. All active sessions are invalidated\n
+        \   \n    **Security:**\n    - Token is single-use only\n    - Token expires
+        after 1 hour\n    - All sessions are logged out after reset\n    "
+      summary: Reset password with token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+            examples:
+              ResetPassword:
+                value:
+                  token: abc123def456...
+                  new_password: NewSecurePass123!
+                  new_password2: NewSecurePass123!
+                summary: Reset Password
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/auth/verify-email/:
+    post:
+      operationId: auth_verify_email_create
+      description: "\n    Verify user's email address using the token sent via email.\n
+        \   \n    **Process:**\n    1. User receives verification email after registration\n
+        \   2. Email contains a unique token\n    3. User clicks link or provides
+        token to this endpoint\n    4. System verifies token and marks email as verified\n
+        \   \n    **Token Validity:** 24 hours\n    "
+      summary: Verify email address
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailVerificationRequest'
+            examples:
+              VerifyEmail:
+                value:
+                  token: abc123def456...
+                summary: Verify Email
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailVerificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailVerificationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                Success:
+                  value:
+                    message: Email verified successfully
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/chat/conversations/:
+    get:
+      operationId: chat_conversations_list
+      description: Get all chat conversations for the authenticated user, ordered
+        by most recent
+      summary: List all conversations
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Chat
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedChatConversationList'
+          description: ''
+    post:
+      operationId: chat_conversations_create
+      description: Create a new chat conversation
+      summary: Create new conversation
+      tags:
+      - Chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatConversationRequest'
+            examples:
+              CreateConversation:
+                value:
+                  title: AAPL Stock Analysis
+                  tags:
+                  - stocks
+                  - tech
+                  - analysis
+                summary: Create Conversation
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatConversationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChatConversationRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatConversation'
+          description: ''
+  /api/chat/conversations/{conversation_id}/messages/:
+    get:
+      operationId: chat_conversations_messages_list
+      description: "\n    Retrieve all messages in a specific conversation.\n    \n
+        \   Messages are ordered chronologically (oldest first).\n    Includes both
+        user and assistant messages.\n    "
+      summary: List messages in a conversation
+      parameters:
+      - in: path
+        name: conversation_id
+        schema:
+          type: integer
+        description: ID of the conversation
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Chat
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedChatMessageList'
+          description: ''
+  /api/chat/conversations/{conversation_id}/messages/create/:
+    post:
+      operationId: chat_conversations_messages_create_create
+      description: "\n    Send a new message in a conversation and get chatbot response.\n
+        \   \n    **Process:**\n    1. User sends a message\n    2. Message is saved
+        to conversation\n    3. Chatbot processes the message (integration pending)\n
+        \   4. Assistant response is saved\n    5. Conversation is updated\n    6.
+        User's query count is incremented\n    \n    **Usage Tracking:**\n    - Increments
+        total_queries and queries_this_month\n    - Updates last_query_at timestamp\n
+        \   - Logs activity for analytics\n    \n    **Note:** Chatbot integration
+        is pending. Currently saves user message only.\n    "
+      summary: Send a message in a conversation
+      parameters:
+      - in: path
+        name: conversation_id
+        schema:
+          type: integer
+        description: ID of the conversation
+        required: true
+      tags:
+      - Chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageCreateRequest'
+            examples:
+              SendMessage:
+                value:
+                  content: What is the current price of AAPL stock?
+                summary: Send Message
+                description: Ask about a stock
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatMessageCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChatMessageCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessage'
+              examples:
+                SuccessResponse:
+                  value:
+                    message:
+                      id: 1
+                      content: What is the current price of AAPL stock?
+                      message_type: user
+                      created_at: '2025-11-10T12:00:00Z'
+                    note: Chatbot integration pending
+                  summary: Success Response
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/chat/conversations/{id}/:
+    get:
+      operationId: chat_conversations_retrieve
+      description: "\n    Manage a specific chat conversation.\n    \n    **Operations:**\n
+        \   - **GET**: Retrieve conversation details\n    - **PUT/PATCH**: Update
+        conversation (title, tags, archived status)\n    - **DELETE**: Delete conversation
+        and all its messages\n    "
+      summary: Get, update, or delete a conversation
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Chat
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatConversation'
+          description: ''
+    put:
+      operationId: chat_conversations_update
+      description: "\n    Manage a specific chat conversation.\n    \n    **Operations:**\n
+        \   - **GET**: Retrieve conversation details\n    - **PUT/PATCH**: Update
+        conversation (title, tags, archived status)\n    - **DELETE**: Delete conversation
+        and all its messages\n    "
+      summary: Get, update, or delete a conversation
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatConversationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatConversationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChatConversationRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatConversation'
+          description: ''
+    patch:
+      operationId: chat_conversations_partial_update
+      description: "\n    Manage a specific chat conversation.\n    \n    **Operations:**\n
+        \   - **GET**: Retrieve conversation details\n    - **PUT/PATCH**: Update
+        conversation (title, tags, archived status)\n    - **DELETE**: Delete conversation
+        and all its messages\n    "
+      summary: Get, update, or delete a conversation
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedChatConversationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedChatConversationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedChatConversationRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatConversation'
+          description: ''
+    delete:
+      operationId: chat_conversations_destroy
+      description: "\n    Manage a specific chat conversation.\n    \n    **Operations:**\n
+        \   - **GET**: Retrieve conversation details\n    - **PUT/PATCH**: Update
+        conversation (title, tags, archived status)\n    - **DELETE**: Delete conversation
+        and all its messages\n    "
+      summary: Get, update, or delete a conversation
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Chat
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/chatbot/:
+    get:
+      operationId: chatbot_retrieve
+      description: "\n    Development endpoint for testing the chatbot API integration.\n
+        \   \n    **GET**: Returns instructions\n    **POST**: Send a message to the
+        chatbot and get response\n    \n    **Note:** This is a test endpoint. For
+        production, use the chat conversations API.\n    "
+      summary: Test chatbot integration
+      tags:
+      - Chatbot
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+    post:
+      operationId: chatbot_create
+      description: "\n    Development endpoint for testing the chatbot API integration.\n
+        \   \n    **GET**: Returns instructions\n    **POST**: Send a message to the
+        chatbot and get response\n    \n    **Note:** This is a test endpoint. For
+        production, use the chat conversations API.\n    "
+      summary: Test chatbot integration
+      tags:
+      - Chatbot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatbotMessageRequest'
+            examples:
+              TestMessage:
+                value:
+                  message: What is the price of AAPL?
+                summary: Test Message
+                description: Send a test message to the chatbot
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatbotMessageRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChatbotMessageRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/news/:
+    get:
+      operationId: news_list
+      description: Fetch historical news data
+      summary: Get historical news data
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: 'Number of records to return (default: 50, max: 200)'
+      tags:
+      - Stock Data
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NewsData'
+          description: ''
+  /api/notification-preferences/:
+    get:
+      operationId: notification_preferences_list
+      description: |-
+        ViewSet for managing notification preferences
+
+        Provides endpoints for:
+        - Getting user notification preferences
+        - Updating notification preferences
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationPreferenceList'
+          description: ''
+  /api/notification-preferences/{id}/:
+    get:
+      operationId: notification_preferences_retrieve
+      description: Get notification preferences for the authenticated user
+      summary: Get notification preferences
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreference'
+          description: ''
+    put:
+      operationId: notification_preferences_update
+      description: Update notification preferences for the authenticated user
+      summary: Update notification preferences
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferenceRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferenceRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferenceRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreference'
+          description: ''
+    patch:
+      operationId: notification_preferences_partial_update
+      description: |-
+        ViewSet for managing notification preferences
+
+        Provides endpoints for:
+        - Getting user notification preferences
+        - Updating notification preferences
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationPreferenceRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationPreferenceRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationPreferenceRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreference'
+          description: ''
+  /api/notification-preferences/me/:
+    get:
+      operationId: notification_preferences_me_retrieve
+      description: Get current user's preferences (convenience endpoint)
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreference'
+          description: ''
+  /api/notifications/:
+    get:
+      operationId: notifications_list
+      description: Get all notifications for the authenticated user with optional
+        filters
+      summary: List user notifications
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: priority
+        schema:
+          type: string
+        description: 'Filter by priority: LOW, MEDIUM, HIGH'
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: 'Filter by status: UNREAD, READ, ARCHIVED'
+      - in: query
+        name: symbol
+        schema:
+          type: string
+        description: Filter by stock symbol
+      - in: query
+        name: type
+        schema:
+          type: string
+        description: 'Filter by type: NEWS, VOLUME_SPIKE'
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationListList'
+          description: ''
+    post:
+      operationId: notifications_create
+      description: |-
+        ViewSet for managing notifications
+
+        Provides endpoints for:
+        - Listing user notifications (with filters)
+        - Retrieving notification details
+        - Marking notifications as read/unread
+        - Deleting/archiving notifications
+        - Getting unread count
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/notifications/{id}/:
+    get:
+      operationId: notifications_retrieve
+      description: Retrieve detailed information about a specific notification
+      summary: Get notification details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    put:
+      operationId: notifications_update
+      description: |-
+        ViewSet for managing notifications
+
+        Provides endpoints for:
+        - Listing user notifications (with filters)
+        - Retrieving notification details
+        - Marking notifications as read/unread
+        - Deleting/archiving notifications
+        - Getting unread count
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    patch:
+      operationId: notifications_partial_update
+      description: |-
+        ViewSet for managing notifications
+
+        Provides endpoints for:
+        - Listing user notifications (with filters)
+        - Retrieving notification details
+        - Marking notifications as read/unread
+        - Deleting/archiving notifications
+        - Getting unread count
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    delete:
+      operationId: notifications_destroy
+      description: Delete a notification (actually archives it)
+      summary: Delete notification
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/{id}/mark_read/:
+    post:
+      operationId: notifications_mark_read_create
+      description: Mark a specific notification as read
+      summary: Mark notification as read
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/notifications/{id}/mark_unread/:
+    post:
+      operationId: notifications_mark_unread_create
+      description: Mark a specific notification as unread
+      summary: Mark notification as unread
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/notifications/mark_all_read/:
+    post:
+      operationId: notifications_mark_all_read_create
+      description: Mark all unread notifications as read for the authenticated user
+      summary: Mark all notifications as read
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkNotificationReadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MarkNotificationReadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MarkNotificationReadRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/notifications/recent/:
+    get:
+      operationId: notifications_recent_list
+      description: Get the most recent 10 unread notifications
+      summary: Get recent notifications
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationListList'
+          description: ''
+  /api/notifications/unread_count/:
+    get:
+      operationId: notifications_unread_count_retrieve
+      description: Get count of unread notifications for the authenticated user
+      summary: Get unread notifications count
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/portfolio/:
+    get:
+      operationId: portfolio_retrieve
+      description: Get the authenticated user's portfolio with all stock holdings
+      summary: Get user portfolio
+      tags:
+      - Portfolio
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Portfolio'
+          description: ''
+  /api/portfolio/stocks/:
+    get:
+      operationId: portfolio_stocks_list
+      description: Add, update, delete, or list stocks in user's portfolio
+      summary: Manage portfolio stocks
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Portfolio
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStockList'
+          description: ''
+    post:
+      operationId: portfolio_stocks_create
+      description: Add, update, delete, or list stocks in user's portfolio
+      summary: Manage portfolio stocks
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Portfolio
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StockRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StockRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStockList'
+          description: ''
+  /api/portfolio/stocks/{symbol}/:
+    get:
+      operationId: portfolio_stocks_list_2
+      description: Add, update, delete, or list stocks in user's portfolio
+      summary: Manage portfolio stocks
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: symbol
+        schema:
+          type: string
+        required: true
+      tags:
+      - Portfolio
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStockList'
+          description: ''
+    put:
+      operationId: portfolio_stocks_update
+      description: Add, update, delete, or list stocks in user's portfolio
+      summary: Manage portfolio stocks
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: symbol
+        schema:
+          type: string
+        required: true
+      tags:
+      - Portfolio
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StockRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StockRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStockList'
+          description: ''
+    patch:
+      operationId: portfolio_stocks_partial_update
+      description: Add, update, delete, or list stocks in user's portfolio
+      summary: Manage portfolio stocks
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: symbol
+        schema:
+          type: string
+        required: true
+      tags:
+      - Portfolio
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStockRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStockRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStockRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStockList'
+          description: ''
+    delete:
+      operationId: portfolio_stocks_destroy
+      description: Add, update, delete, or list stocks in user's portfolio
+      summary: Manage portfolio stocks
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: symbol
+        schema:
+          type: string
+        required: true
+      tags:
+      - Portfolio
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStockList'
+          description: ''
+  /api/portfolio/stocks/bulk_upload/:
+    post:
+      operationId: portfolio_stocks_bulk_upload_create
+      description: Upload multiple stocks at once (e.g., from CSV)
+      summary: Bulk upload stocks
+      tags:
+      - Portfolio
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkStockUploadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BulkStockUploadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BulkStockUploadRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/portfolio/stocks/summary/:
+    get:
+      operationId: portfolio_stocks_summary_retrieve
+      description: Get summary statistics of portfolio (without real-time prices)
+      summary: Get portfolio summary
+      tags:
+      - Portfolio
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/sarimax-forecasts/:
+    get:
+      operationId: sarimax_forecasts_list
+      description: Fetch historical SARIMAX forecast data for a specific symbol
+      summary: Get historical SARIMAX forecasts
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: 'Number of records to return (default: 100, max: 500)'
+      - in: query
+        name: symbol
+        schema:
+          type: string
+        description: Stock symbol (e.g., NVDA, AAPL)
+        required: true
+      tags:
+      - Stock Data
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SarimaxForecast'
+          description: ''
+  /api/stock-ticks/:
+    get:
+      operationId: stock_ticks_list
+      description: Fetch historical stock tick data for a specific symbol
+      summary: Get historical stock ticks
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: 'Number of records to return (default: 100, max: 500)'
+      - in: query
+        name: symbol
+        schema:
+          type: string
+        description: Stock symbol (e.g., NVDA, AAPL)
+        required: true
+      tags:
+      - Stock Data
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockTick'
+          description: ''
+  /api/users/me/:
+    get:
+      operationId: users_me_retrieve
+      description: Retrieve the authenticated user's profile information
+      summary: Get current user details
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomUser'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+    put:
+      operationId: users_me_update
+      description: Update the authenticated user's profile information
+      summary: Update current user
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomUserRequest'
+            examples:
+              UpdateProfile:
+                value:
+                  first_name: John
+                  last_name: Doe
+                  phone_number: '+1234567890'
+                  bio: Stock market enthusiast
+                summary: Update Profile
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomUserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomUser'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/users/me/profile/:
+    get:
+      operationId: users_me_profile_retrieve
+      description: "\n    Manage user profile settings including:\n    - Subscription
+        tier and status\n    - Favorite stocks and watchlist\n    - Notification preferences\n
+        \   - Usage statistics\n    "
+      summary: Get user profile
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    put:
+      operationId: users_me_profile_update
+      description: "\n    Manage user profile settings including:\n    - Subscription
+        tier and status\n    - Favorite stocks and watchlist\n    - Notification preferences\n
+        \   - Usage statistics\n    "
+      summary: Update user profile
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileRequest'
+            examples:
+              UpdatePreferences:
+                value:
+                  favorite_stocks:
+                  - AAPL
+                  - GOOGL
+                  - MSFT
+                  watchlist:
+                  - TSLA
+                  - AMZN
+                  notifications_enabled: true
+                summary: Update Preferences
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfileRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+  /api/users/sessions/:
+    get:
+      operationId: users_sessions_list
+      description: "\n    List all active sessions for the authenticated user.\n    \n
+        \   **Session Information Includes:**\n    - Device type and name\n    - IP
+        address\n    - User agent (browser/app info)\n    - Creation and last activity
+        timestamps\n    - Expiry time\n    \n    **Use Case:** \n    View all devices
+        where you're currently logged in and manage your security.\n    "
+      summary: List active sessions
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Sessions
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserSessionList'
+          description: ''
+  /api/users/sessions/{session_id}/:
+    delete:
+      operationId: users_sessions_destroy
+      description: "\n    Revoke (logout) a specific session by ID.\n    \n    **Security
+        Feature:**\n    Use this to logout from other devices if you suspect unauthorized
+        access.\n    \n    **Note:** Cannot revoke your current session - use logout
+        endpoint instead.\n    "
+      summary: Revoke a session
+      parameters:
+      - in: path
+        name: session_id
+        schema:
+          type: integer
+        description: ID of the session to revoke
+        required: true
+      tags:
+      - Sessions
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/volume-spikes/:
+    get:
+      operationId: volume_spikes_list
+      description: Fetch historical volume spike data for a specific symbol
+      summary: Get historical volume spikes
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: 'Number of records to return (default: 100, max: 500)'
+      - in: query
+        name: symbol
+        schema:
+          type: string
+        description: Stock symbol (e.g., NVDA, AAPL)
+      tags:
+      - Stock Data
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VolumeSpike'
+          description: ''
+components:
+  schemas:
+    BulkStockUploadRequest:
+      type: object
+      description: |-
+        Serializer for bulk CSV upload
+        Expects array of stocks with symbol, quantity, cost_basis
+      properties:
+        stocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+      required:
+      - stocks
+    ChangePasswordRequest:
+      type: object
+      description: Serializer for password change
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        new_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        new_password2:
+          type: string
+          writeOnly: true
+          minLength: 1
+          title: Confirm New Password
+      required:
+      - new_password
+      - new_password2
+      - old_password
+    ChatConversation:
+      type: object
+      description: Serializer for ChatConversation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        is_archived:
+          type: boolean
+        is_pinned:
+          type: boolean
+        tags: {}
+        message_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_message_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - last_message_at
+      - message_count
+      - updated_at
+    ChatConversationRequest:
+      type: object
+      description: Serializer for ChatConversation
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        is_archived:
+          type: boolean
+        is_pinned:
+          type: boolean
+        tags: {}
+    ChatMessage:
+      type: object
+      description: Serializer for ChatMessage
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        user:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          format: email
+          readOnly: true
+        message_type:
+          $ref: '#/components/schemas/MessageTypeEnum'
+        content:
+          type: string
+        metadata: {}
+        tokens_used:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        response_time_ms:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        is_helpful:
+          type: boolean
+          nullable: true
+        rating:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - content
+      - conversation
+      - created_at
+      - id
+      - message_type
+      - updated_at
+      - user
+      - user_email
+    ChatMessageCreateRequest:
+      type: object
+      description: Serializer for creating chat messages (from user)
+      properties:
+        content:
+          type: string
+          minLength: 1
+      required:
+      - content
+    ChatbotMessageRequest:
+      type: object
+      description: Serializer for chatbot test endpoint
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Message to send to the chatbot
+      required:
+      - message
+    CustomUser:
+      type: object
+      description: Serializer for CustomUser model
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 20
+        bio:
+          type: string
+          nullable: true
+        profile_picture:
+          type: string
+          format: uri
+          nullable: true
+        email_verified:
+          type: boolean
+          readOnly: true
+        email_verified_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        profile:
+          allOf:
+          - $ref: '#/components/schemas/UserProfile'
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - email_verified
+      - email_verified_at
+      - id
+      - profile
+      - updated_at
+      - username
+    CustomUserRequest:
+      type: object
+      description: Serializer for CustomUser model
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 20
+        bio:
+          type: string
+          nullable: true
+        profile_picture:
+          type: string
+          format: binary
+          nullable: true
+      required:
+      - email
+      - username
+    EmailVerificationRequest:
+      type: object
+      description: Serializer for email verification
+      properties:
+        token:
+          type: string
+          minLength: 1
+          description: Verification token from email
+      required:
+      - token
+    MarkNotificationReadRequest:
+      type: object
+      description: Serializer for marking notifications as read
+      properties:
+        notification_ids:
+          type: array
+          items:
+            type: integer
+          description: List of notification IDs to mark as read (optional for single
+            notification)
+    MessageTypeEnum:
+      enum:
+      - user
+      - assistant
+      - system
+      type: string
+      description: |-
+        * `user` - User
+        * `assistant` - Assistant
+        * `system` - System
+    NewsData:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        news_data: {}
+      required:
+      - timestamp
+    Notification:
+      type: object
+      description: |-
+        Serializer for Notification model
+        Handles notification data with full details
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        notification_type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        symbol:
+          type: string
+          maxLength: 10
+        title:
+          type: string
+          maxLength: 255
+        message:
+          type: string
+        data: {}
+        timestamp:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        read_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        time_ago:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - message
+      - notification_type
+      - read_at
+      - symbol
+      - time_ago
+      - timestamp
+      - title
+      - username
+    NotificationList:
+      type: object
+      description: |-
+        Lightweight serializer for notification lists
+        Excludes heavy data field
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        notification_type:
+          allOf:
+          - $ref: '#/components/schemas/NotificationTypeEnum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        symbol:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          readOnly: true
+        time_ago:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - message
+      - notification_type
+      - priority
+      - status
+      - symbol
+      - time_ago
+      - timestamp
+      - title
+    NotificationPreference:
+      type: object
+      description: |-
+        Serializer for NotificationPreference model
+        Handles user notification settings
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        news_alerts_enabled:
+          type: boolean
+        volume_spike_alerts_enabled:
+          type: boolean
+        min_volume_spike_threshold:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          description: Minimum volume spike percentage to trigger notification (e.g.,
+            50.0 for 50%)
+        web_notifications_enabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - updated_at
+      - username
+    NotificationPreferenceRequest:
+      type: object
+      description: |-
+        Serializer for NotificationPreference model
+        Handles user notification settings
+      properties:
+        news_alerts_enabled:
+          type: boolean
+        volume_spike_alerts_enabled:
+          type: boolean
+        min_volume_spike_threshold:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          description: Minimum volume spike percentage to trigger notification (e.g.,
+            50.0 for 50%)
+        web_notifications_enabled:
+          type: boolean
+    NotificationRequest:
+      type: object
+      description: |-
+        Serializer for Notification model
+        Handles notification data with full details
+      properties:
+        notification_type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 10
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        message:
+          type: string
+          minLength: 1
+        data: {}
+        timestamp:
+          type: string
+          format: date-time
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+      required:
+      - message
+      - notification_type
+      - symbol
+      - timestamp
+      - title
+    NotificationTypeEnum:
+      enum:
+      - NEWS
+      - VOLUME_SPIKE
+      type: string
+      description: |-
+        * `NEWS` - News Alert
+        * `VOLUME_SPIKE` - Volume Spike Alert
+    PaginatedChatConversationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatConversation'
+    PaginatedChatMessageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+    PaginatedNotificationListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationList'
+    PaginatedNotificationPreferenceList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationPreference'
+    PaginatedStockList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stock'
+    PaginatedUserSessionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSession'
+    PasswordResetConfirmRequest:
+      type: object
+      description: Serializer for password reset confirmation
+      properties:
+        token:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        new_password2:
+          type: string
+          writeOnly: true
+          minLength: 1
+          title: Confirm New Password
+      required:
+      - new_password
+      - new_password2
+      - token
+    PasswordResetRequestRequest:
+      type: object
+      description: Serializer for password reset request
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    PatchedChatConversationRequest:
+      type: object
+      description: Serializer for ChatConversation
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        is_archived:
+          type: boolean
+        is_pinned:
+          type: boolean
+        tags: {}
+    PatchedNotificationPreferenceRequest:
+      type: object
+      description: |-
+        Serializer for NotificationPreference model
+        Handles user notification settings
+      properties:
+        news_alerts_enabled:
+          type: boolean
+        volume_spike_alerts_enabled:
+          type: boolean
+        min_volume_spike_threshold:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          description: Minimum volume spike percentage to trigger notification (e.g.,
+            50.0 for 50%)
+        web_notifications_enabled:
+          type: boolean
+    PatchedNotificationRequest:
+      type: object
+      description: |-
+        Serializer for Notification model
+        Handles notification data with full details
+      properties:
+        notification_type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 10
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        message:
+          type: string
+          minLength: 1
+        data: {}
+        timestamp:
+          type: string
+          format: date-time
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+    PatchedStockRequest:
+      type: object
+      description: |-
+        Serializer for Stock model
+        Handles individual stock holdings in a portfolio
+      properties:
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 10
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,4})?$
+          description: Number of shares owned (supports fractional shares)
+        cost_basis:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          description: Average purchase price per share
+    Portfolio:
+      type: object
+      description: |-
+        Serializer for Portfolio model
+        Includes nested stocks data
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          format: email
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        total_stocks:
+          type: integer
+          readOnly: true
+        stocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stock'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - stocks
+      - total_stocks
+      - updated_at
+      - user_email
+      - username
+    PriorityEnum:
+      enum:
+      - LOW
+      - MEDIUM
+      - HIGH
+      type: string
+      description: |-
+        * `LOW` - Low
+        * `MEDIUM` - Medium
+        * `HIGH` - High
+    SarimaxForecast:
+      type: object
+      properties:
+        symbol:
+          type: string
+          maxLength: 10
+        timestamp:
+          type: string
+          format: date-time
+        forecast_data: {}
+      required:
+      - symbol
+      - timestamp
+    StatusEnum:
+      enum:
+      - UNREAD
+      - READ
+      - ARCHIVED
+      type: string
+      description: |-
+        * `UNREAD` - Unread
+        * `READ` - Read
+        * `ARCHIVED` - Archived
+    Stock:
+      type: object
+      description: |-
+        Serializer for Stock model
+        Handles individual stock holdings in a portfolio
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        symbol:
+          type: string
+          maxLength: 10
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,4})?$
+          description: Number of shares owned (supports fractional shares)
+        cost_basis:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          description: Average purchase price per share
+        total_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          readOnly: true
+          description: Total investment cost (quantity * cost_basis)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - cost_basis
+      - created_at
+      - id
+      - quantity
+      - symbol
+      - total_cost
+      - updated_at
+    StockRequest:
+      type: object
+      description: |-
+        Serializer for Stock model
+        Handles individual stock holdings in a portfolio
+      properties:
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 10
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,4})?$
+          description: Number of shares owned (supports fractional shares)
+        cost_basis:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          description: Average purchase price per share
+      required:
+      - cost_basis
+      - quantity
+      - symbol
+    StockTick:
+      type: object
+      properties:
+        symbol:
+          type: string
+          maxLength: 10
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,4})?$
+        volume:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - price
+      - symbol
+      - timestamp
+      - volume
+    SubscriptionStatusEnum:
+      enum:
+      - active
+      - inactive
+      - trial
+      - cancelled
+      type: string
+      description: |-
+        * `active` - Active
+        * `inactive` - Inactive
+        * `trial` - Trial
+        * `cancelled` - Cancelled
+    SubscriptionTierEnum:
+      enum:
+      - free
+      - basic
+      - premium
+      type: string
+      description: |-
+        * `free` - Free
+        * `basic` - Basic
+        * `premium` - Premium
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    UserLoginRequest:
+      type: object
+      description: Serializer for user login
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    UserProfile:
+      type: object
+      description: Serializer for UserProfile
+      properties:
+        subscription_tier:
+          $ref: '#/components/schemas/SubscriptionTierEnum'
+        subscription_status:
+          $ref: '#/components/schemas/SubscriptionStatusEnum'
+        subscription_start_date:
+          type: string
+          format: date-time
+          nullable: true
+        subscription_end_date:
+          type: string
+          format: date-time
+          nullable: true
+        favorite_stocks: {}
+        watchlist: {}
+        notifications_enabled:
+          type: boolean
+        total_queries:
+          type: integer
+          readOnly: true
+        queries_this_month:
+          type: integer
+          readOnly: true
+        last_query_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - last_query_at
+      - queries_this_month
+      - total_queries
+      - updated_at
+    UserProfileRequest:
+      type: object
+      description: Serializer for UserProfile
+      properties:
+        subscription_tier:
+          $ref: '#/components/schemas/SubscriptionTierEnum'
+        subscription_status:
+          $ref: '#/components/schemas/SubscriptionStatusEnum'
+        subscription_start_date:
+          type: string
+          format: date-time
+          nullable: true
+        subscription_end_date:
+          type: string
+          format: date-time
+          nullable: true
+        favorite_stocks: {}
+        watchlist: {}
+        notifications_enabled:
+          type: boolean
+    UserRegistrationRequest:
+      type: object
+      description: Serializer for user registration
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password2:
+          type: string
+          writeOnly: true
+          minLength: 1
+          title: Confirm Password
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - email
+      - password
+      - password2
+      - username
+    UserSession:
+      type: object
+      description: Serializer for UserSession
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        device_type:
+          type: string
+          nullable: true
+          maxLength: 50
+        device_name:
+          type: string
+          nullable: true
+          maxLength: 100
+        ip_address:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        is_current:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_activity_at:
+          type: string
+          format: date-time
+          readOnly: true
+        expires_at:
+          type: string
+          format: date-time
+      required:
+      - created_at
+      - expires_at
+      - id
+      - is_current
+      - last_activity_at
+    VolumeSpike:
+      type: object
+      properties:
+        symbol:
+          type: string
+          maxLength: 10
+        timestamp:
+          type: string
+          format: date-time
+        spike_data: {}
+      required:
+      - symbol
+      - timestamp
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Authentication
+  description: User registration, login, logout, and password management
+- name: Users
+  description: User profile and settings management
+- name: Sessions
+  description: Active session management and security
+- name: Chat
+  description: Chat conversations and messages
+- name: Chatbot
+  description: Chatbot API integration

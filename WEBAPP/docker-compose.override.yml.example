@@ -1,0 +1,54 @@
+# docker-compose.override.yml.example
+# Copy this file to docker-compose.override.yml for local development overrides
+# This file will be automatically merged with docker-compose.yml
+
+services:
+  # Frontend development overrides
+  frontend:
+    # Uncomment to use local development server instead of production build
+    # command: npm run dev
+    # volumes:
+    #   - ./frontend:/app
+    #   - /app/node_modules
+    #   - /app/.next
+    environment:
+      - NODE_ENV=development
+
+  # Backend development overrides
+  backend:
+    # Enable hot reload for development
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+      - ./backend/db.sqlite3:/app/db.sqlite3
+      - ./backend/logs:/app/logs
+    environment:
+      - DEBUG=True
+      - PYTHONUNBUFFERED=1
+
+  # Optional: Add PostgreSQL for development
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: pway-postgres
+  #   environment:
+  #     POSTGRES_DB: pway_stock
+  #     POSTGRES_USER: pway_user
+  #     POSTGRES_PASSWORD: pway_pass
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - pway-network
+
+  # Optional: Add Redis for caching
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: pway-redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - pway-network
+
+# volumes:
+#   postgres_data:

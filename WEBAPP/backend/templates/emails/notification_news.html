@@ -1,0 +1,139 @@
+{% extends "emails/base.html" %}
+
+{% block title %}News Alert: {{ symbol }}{% endblock %}
+
+{% block header_title %}📰 News Alert{% endblock %}
+{% block header_subtitle %}{{ symbol }} - {{ notification_type }}{% endblock %}
+
+{% block content %}
+<!-- Greeting -->
+<p style="font-size: 16px; color: #1E293B; margin-bottom: 24px;">
+  Hi <strong>{{ user.first_name|default:user.username }}</strong>,
+</p>
+
+<!-- Priority Badge -->
+<div style="margin-bottom: 20px;">
+  <span class="badge badge-news">NEWS</span>
+  {% if notification.priority == 'HIGH' %}
+  <span class="badge badge-high">High Priority</span>
+  {% elif notification.priority == 'MEDIUM' %}
+  <span class="badge badge-medium">Medium Priority</span>
+  {% else %}
+  <span class="badge badge-low">Low Priority</span>
+  {% endif %}
+</div>
+
+<!-- Stock Symbol -->
+<div style="text-align: center; margin: 24px 0;">
+  <div class="stock-symbol">
+    📈 {{ symbol }}
+  </div>
+</div>
+
+<!-- Main Content -->
+<div style="margin: 24px 0;">
+  <h2 style="font-size: 20px; color: #1E293B; margin-bottom: 16px; line-height: 1.4;">
+    {{ notification.title }}
+  </h2>
+  <p style="font-size: 15px; color: #475569; line-height: 1.7; margin-bottom: 20px;">
+    {{ notification.message }}
+  </p>
+</div>
+
+<!-- News Details Box -->
+<div class="info-box">
+  <h3>📋 News Details</h3>
+  
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 12px;">
+    {% if data.headline %}
+    <tr>
+      <td class="data-row" style="display: flex; justify-content: space-between; padding: 10px 0;">
+        <span class="data-label">Headline:</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding-bottom: 12px;">
+        <p style="font-size: 14px; color: #1E293B; font-weight: 500; margin: 0;">
+          {{ data.headline }}
+        </p>
+      </td>
+    </tr>
+    {% endif %}
+    
+    {% if data.sentiment %}
+    <tr>
+      <td class="data-row" style="display: table; width: 100%; padding: 10px 0; border-top: 1px solid #E2E8F0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td width="50%" style="vertical-align: middle;">
+              <span class="data-label">Sentiment:</span>
+            </td>
+            <td width="50%" style="text-align: right; vertical-align: middle;">
+              {% if data.sentiment == 'positive' or data.sentiment == 'very_positive' %}
+              <span class="sentiment-positive">● Positive</span>
+              {% elif data.sentiment == 'negative' or data.sentiment == 'very_negative' %}
+              <span class="sentiment-negative">● Negative</span>
+              {% else %}
+              <span class="sentiment-neutral">● Neutral</span>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    {% endif %}
+    
+    {% if data.source %}
+    <tr>
+      <td class="data-row" style="display: table; width: 100%; padding: 10px 0; border-top: 1px solid #E2E8F0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td width="50%" style="vertical-align: middle;">
+              <span class="data-label">Source:</span>
+            </td>
+            <td width="50%" style="text-align: right; vertical-align: middle;">
+              <span class="data-value">{{ data.source }}</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    {% endif %}
+    
+    {% if data.url %}
+    <tr>
+      <td style="padding-top: 16px;">
+        <a href="{{ data.url }}" class="button" style="display: inline-block; width: 100%; text-align: center; text-decoration: none;">
+          Read Full Article →
+        </a>
+      </td>
+    </tr>
+    {% endif %}
+  </table>
+</div>
+
+<!-- Timestamp -->
+<div class="timestamp">
+  <span class="timestamp-icon">🕐</span>
+  <span class="timestamp-text">{{ timestamp|date:"F d, Y \a\t g:i A" }} UTC</span>
+</div>
+
+<!-- Call to Action -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 32px;">
+  <tr>
+    <td align="center">
+      <a href="{{ app_url }}/portfolio" class="button" style="text-decoration: none;">
+        View Your Portfolio
+      </a>
+    </td>
+  </tr>
+</table>
+
+<!-- Additional Info -->
+<div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #E2E8F0;">
+  <p style="font-size: 13px; color: #64748B; text-align: center; line-height: 1.6;">
+    💡 <strong>Tip:</strong> Stay informed about your investments with real-time news alerts. 
+    Manage your notification preferences in your dashboard settings.
+  </p>
+</div>
+{% endblock %}

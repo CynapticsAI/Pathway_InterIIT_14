@@ -1,0 +1,7 @@
+pathway
+yfinance
+aiohttp
+python-dotenv
+beautifulsoup4
+nltk
+pandas

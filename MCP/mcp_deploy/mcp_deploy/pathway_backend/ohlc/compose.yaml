@@ -1,0 +1,7 @@
+services:
+  ohlc:
+    image : pgoldt/ohlc:macos
+
+    build : 
+
+    

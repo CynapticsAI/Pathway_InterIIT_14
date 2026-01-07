@@ -1,0 +1,143 @@
+services:
+  postgres:
+    container_name: db_test_postgres
+    image: debezium/postgres:16
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=test_db
+      - PGPASSWORD=password
+
+    volumes:
+      - ./sql/:/docker-entrypoint-initdb.d/
+  
+  zookeeper:
+    container_name: db_test_zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    container_name: db_test_kafka
+    image: confluentinc/cp-kafka:7.6.0
+    ports:
+      - "29092:29092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9991
+    healthcheck:
+      test: [
+        "CMD", 
+        "kafka-broker-api-versions", 
+        "--bootstrap-server", 
+        "localhost:9092"
+      ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  debezium:
+    container_name: db_test_debezium
+    image: debezium/connect:2.7.0.Final
+    ports:
+      - 8083:8083
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
+      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+    
+    volumes:
+      - ./debezium/connector.sh/connector.sh:/kafka/connector.sh
+
+    depends_on: 
+      - kafka
+
+  clarifier:
+    build:
+      context: ./clarification
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      KAFKA_SERVER: ${KAFKA_SERVER}
+      mcp_url_1: ${mcp_url_1}
+      mcp_url_2: ${mcp_url_2}
+    volumes:
+      - ./output:/app/output
+  orch:
+    build:
+      context: ./orch
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      KAFKA_SERVER: ${KAFKA_SERVER}
+      mcp_url_1: ${mcp_url_1}
+      mcp_url_2: ${mcp_url_2}
+    volumes:
+      - ./output:/app/output
+
+  macro:
+    build:
+      context: ./macro
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      KAFKA_SERVER: ${KAFKA_SERVER}
+      mcp_url_1: ${mcp_url_1}
+      mcp_url_2: ${mcp_url_2}
+    volumes:
+      - ./output:/app/output
+
+  market_analyzer:
+    build:
+      context: ./market_analyzer
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      KAFKA_SERVER: ${KAFKA_SERVER}
+      mcp_url_1: ${mcp_url_1}
+      mcp_url_2: ${mcp_url_2}
+    volumes:
+      - ./output:/app/output
+
+  portfolio_agent:
+    build:
+      context: ./portfolio
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      KAFKA_SERVER: ${KAFKA_SERVER}
+      mcp_url_1: ${mcp_url_1}
+      mcp_url_2: ${mcp_url_2}
+    volumes:
+      - ./output:/app/output
+
+  
+    
+

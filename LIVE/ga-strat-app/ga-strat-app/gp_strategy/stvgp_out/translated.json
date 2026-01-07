@@ -1,0 +1,242 @@
+[
+  {
+    "tree": "gt(sub(ARG7, ARG6), sin(0.0))",
+    "human_readable": "((ema200 - ema50) > sin(0.0))",
+    "metrics": {
+      "roi": -0.054737491594023455,
+      "sharpe": -0.7025078090863895,
+      "sortino": -0.7131412613807514,
+      "max_drawdown": -0.27079704486048545,
+      "drawdown_duration": 11,
+      "exposure": 0.5058851789574826,
+      "num_trades": 14,
+      "win_rate": 0.6428571428571429,
+      "avg_trade_return": -0.003909820828144533,
+      "profit_factor": 0.8857524188866094
+    }
+  },
+  {
+    "tree": "gt(sub(ARG7, ARG6), sin(ARG6))",
+    "human_readable": "((ema200 - ema50) > sin(ema50))",
+    "metrics": {
+      "roi": -0.057637055094926476,
+      "sharpe": -0.7658133658326093,
+      "sortino": -0.753076975547042,
+      "max_drawdown": -0.2770431325420578,
+      "drawdown_duration": 10,
+      "exposure": 0.4972375690607735,
+      "num_trades": 13,
+      "win_rate": 0.6153846153846154,
+      "avg_trade_return": -0.004433619622686651,
+      "profit_factor": 0.8697919369143168
+    }
+  },
+  {
+    "tree": "gt(sub(ARG7, abs(0.5)), ARG6)",
+    "human_readable": "((ema200 - abs(0.5)) > ema50)",
+    "metrics": {
+      "roi": -0.03264157787468143,
+      "sharpe": -0.4185647204131748,
+      "sortino": -0.44316562865310993,
+      "max_drawdown": -0.26835339347665466,
+      "drawdown_duration": 11,
+      "exposure": 0.4866682680759068,
+      "num_trades": 14,
+      "win_rate": 0.7142857142857143,
+      "avg_trade_return": -0.002331541276762959,
+      "profit_factor": 0.9303261104079144
+    }
+  },
+  {
+    "tree": "lor(gt(add(ARG7, sin(sub(ARG6, 0.0))), ARG6), gt(sub(ARG6, ARG5), cos(add(-2.0, cos(mul(sin(abs(ARG6)), sin(ARG6)))))))",
+    "human_readable": "(((ema200 + sin((ema50 - 0.0))) > ema50) OR ((ema50 - ema13) > cos((-2.0 + cos((sin(abs(ema50)) * sin(ema50)))))))",
+    "metrics": {
+      "roi": -0.14283477999011882,
+      "sharpe": -1.2297326009125757,
+      "sortino": -0.9974459180895284,
+      "max_drawdown": -0.3667448877489856,
+      "drawdown_duration": 17,
+      "exposure": 0.6279125630554888,
+      "num_trades": 24,
+      "win_rate": 0.75,
+      "avg_trade_return": -0.005951449166254948,
+      "profit_factor": 0.7817214968533979
+    }
+  },
+  {
+    "tree": "ge(ARG6, ARG7)",
+    "human_readable": "(ema50 >= ema200)",
+    "metrics": {
+      "roi": 0.30579058410779186,
+      "sharpe": 2.7025817761823507,
+      "sortino": 23.579122712909598,
+      "max_drawdown": -0.20311141359879106,
+      "drawdown_duration": 12,
+      "exposure": 0.4941148210425174,
+      "num_trades": 14,
+      "win_rate": 0.35714285714285715,
+      "avg_trade_return": 0.02184218457912799,
+      "profit_factor": 1.7285635596523998
+    }
+  },
+  {
+    "tree": "gt(cos(sub(ARG6, ARG5)), sub(ARG6, ARG7))",
+    "human_readable": "(cos((ema50 - ema13)) > (ema50 - ema200))",
+    "metrics": {
+      "roi": -0.00971379702961416,
+      "sharpe": -0.09760028146228474,
+      "sortino": -0.0803658123911798,
+      "max_drawdown": -0.3183969501205085,
+      "drawdown_duration": 18,
+      "exposure": 0.5102089839058371,
+      "num_trades": 22,
+      "win_rate": 0.6818181818181818,
+      "avg_trade_return": -0.00044153622861882507,
+      "profit_factor": 0.9806970358958349
+    }
+  },
+  {
+    "tree": "gt(cos(vec_min(vec_add(ARG2, ARG1))), cos(sub(ARG6, ARG5)))",
+    "human_readable": "(cos(min((low_vec + high_vec))) > cos((ema50 - ema13)))",
+    "metrics": {
+      "roi": 0.0773303838539794,
+      "sharpe": 4.072958131967711,
+      "sortino": 7.091313225889425,
+      "max_drawdown": -0.042728510214298326,
+      "drawdown_duration": 13,
+      "exposure": 0.006485707422531828,
+      "num_trades": 26,
+      "win_rate": 0.5769230769230769,
+      "avg_trade_return": 0.0029742455328453615,
+      "profit_factor": 2.021431737896857
+    }
+  },
+  {
+    "tree": "lor(gt(-1.0, add(ARG5, ARG6)), gt(cos(ARG6), cos(0.5)))",
+    "human_readable": "((-1.0 > (ema13 + ema50)) OR (cos(ema50) > cos(0.5)))",
+    "metrics": {
+      "roi": -0.11797396817607421,
+      "sharpe": -0.4644262873083637,
+      "sortino": -0.5495501066243226,
+      "max_drawdown": -0.3932731646723312,
+      "drawdown_duration": 209,
+      "exposure": 0.1604612058611578,
+      "num_trades": 217,
+      "win_rate": 0.4700460829493088,
+      "avg_trade_return": -0.0005436588395210794,
+      "profit_factor": 0.9138603876675828
+    }
+  },
+  {
+    "tree": "lor(gt(ARG5, add(ARG5, ARG6)), gt(cos(ARG6), cos(0.5)))",
+    "human_readable": "((ema13 > (ema13 + ema50)) OR (cos(ema50) > cos(0.5)))",
+    "metrics": {
+      "roi": -0.11797396817607421,
+      "sharpe": -0.4644262873083637,
+      "sortino": -0.5495501066243226,
+      "max_drawdown": -0.3932731646723312,
+      "drawdown_duration": 209,
+      "exposure": 0.1604612058611578,
+      "num_trades": 217,
+      "win_rate": 0.4700460829493088,
+      "avg_trade_return": -0.0005436588395210794,
+      "profit_factor": 0.9138603876675828
+    }
+  },
+  {
+    "tree": "gt(cos(sub(ARG7, -1.0)), sin(protected_div(protected_div(ARG6, abs(0.0)), 0.5)))",
+    "human_readable": "(cos((ema200 - -1.0)) > sin(safe_div(safe_div(ema50, abs(0.0)), 0.5)))",
+    "metrics": {
+      "roi": 0.6058400095716655,
+      "sharpe": 4.031357458780684,
+      "sortino": 8.075133080671018,
+      "max_drawdown": -0.08042107368393811,
+      "drawdown_duration": 1,
+      "exposure": 0.13379774201297143,
+      "num_trades": 107,
+      "win_rate": 0.5607476635514018,
+      "avg_trade_return": 0.005662056164221174,
+      "profit_factor": 2.1465310330751675
+    }
+  },
+  {
+    "tree": "gt(sub(ARG6, ARG5), cos(sub(ARG6, ARG5)))",
+    "human_readable": "((ema50 - ema13) > cos((ema50 - ema13)))",
+    "metrics": {
+      "roi": -0.21525645169608343,
+      "sharpe": -1.790358079184811,
+      "sortino": -2.1747278727242993,
+      "max_drawdown": -0.3616237502035024,
+      "drawdown_duration": 41,
+      "exposure": 0.4405476819601249,
+      "num_trades": 44,
+      "win_rate": 0.6136363636363636,
+      "avg_trade_return": -0.004892192084001896,
+      "profit_factor": 0.7430869025918972
+    }
+  },
+  {
+    "tree": "gt(sub(ARG6, ARG5), sin(sin(ARG6)))",
+    "human_readable": "((ema50 - ema13) > sin(sin(ema50)))",
+    "metrics": {
+      "roi": -0.19318135063578418,
+      "sharpe": -1.4335281713214918,
+      "sortino": -1.6614340554336615,
+      "max_drawdown": -0.3618446950533797,
+      "drawdown_duration": 45,
+      "exposure": 0.48018256065337495,
+      "num_trades": 50,
+      "win_rate": 0.66,
+      "avg_trade_return": -0.003863627012715683,
+      "profit_factor": 0.7834036642706247
+    }
+  },
+  {
+    "tree": "gt(sin(0.0), sub(ARG6, ARG5))",
+    "human_readable": "(sin(0.0) > (ema50 - ema13))",
+    "metrics": {
+      "roi": 0.5671859093300237,
+      "sharpe": 2.3031850027234793,
+      "sortino": 13.535317612774813,
+      "max_drawdown": -0.201490745344697,
+      "drawdown_duration": 4,
+      "exposure": 0.5157338457842902,
+      "num_trades": 42,
+      "win_rate": 0.30952380952380953,
+      "avg_trade_return": 0.013504426412619609,
+      "profit_factor": 1.7079962049503423
+    }
+  },
+  {
+    "tree": "gt(cos(ARG6), sin(1.0))",
+    "human_readable": "(cos(ema50) > sin(1.0))",
+    "metrics": {
+      "roi": -0.20158335791549226,
+      "sharpe": -0.7899763023361938,
+      "sortino": -0.9201517745524386,
+      "max_drawdown": -0.42954047466175754,
+      "drawdown_duration": 209,
+      "exposure": 0.18232044198895028,
+      "num_trades": 217,
+      "win_rate": 0.4608294930875576,
+      "avg_trade_return": -0.0009289555664308399,
+      "profit_factor": 0.8607202273334623
+    }
+  },
+  {
+    "tree": "gt(cos(ARG6), sin(cos(0.0)))",
+    "human_readable": "(cos(ema50) > sin(cos(0.0)))",
+    "metrics": {
+      "roi": -0.20158335791549226,
+      "sharpe": -0.7899763023361938,
+      "sortino": -0.9201517745524386,
+      "max_drawdown": -0.42954047466175754,
+      "drawdown_duration": 209,
+      "exposure": 0.18232044198895028,
+      "num_trades": 217,
+      "win_rate": 0.4608294930875576,
+      "avg_trade_return": -0.0009289555664308399,
+      "profit_factor": 0.8607202273334623
+    }
+  }
+]

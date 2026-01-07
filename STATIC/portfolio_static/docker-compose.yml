@@ -1,0 +1,157 @@
+
+networks:
+  portfolio-net:
+    driver: bridge
+
+services:
+  # --- INFRASTRUCTURE ---
+  
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: portfolio-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD-SHELL", "echo srvr | nc localhost 2181 || exit 1"]
+      interval: 10s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: portfolio-kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    networks:
+      - portfolio-net
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: portfolio-zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://portfolio-kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server portfolio-kafka:9092 || exit 1"]
+      interval: 10s
+      retries: 10
+
+  postgres:
+    image: postgres:15
+    container_name: portfolio-postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: portfolio_db
+    networks:
+      - portfolio-net
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      retries: 10
+
+  # --- PRODUCERS (Data Ingestion) ---
+
+  producer-stock:
+    build:
+      context: ./producers
+    container_name: producer-stock
+    command: python producer_stock.py
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=portfolio-kafka:9092
+    volumes:
+      - ./data:/app/data
+    networks:
+      - portfolio-net
+    restart: always
+
+  producer-sentiment:
+    build:
+      context: ./producers
+    container_name: producer-sentiment
+    command: python producer_sentiment.py
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=portfolio-kafka:9092
+    volumes:
+      - ./data:/app/data
+    networks:
+      - portfolio-net
+    restart: always
+
+  # --- PROCESSING (Scoring) ---
+
+  scorer:
+    build:
+      context: ./processing
+    container_name: scorer
+    command: python scorer.py
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=portfolio-kafka:9092
+    networks:
+      - portfolio-net
+    restart: always
+
+  # --- BACKEND (Portfolio Logic & API) ---
+
+  portfolio-engine:
+    build:
+      context: ./backend
+    container_name: portfolio-engine
+    command: python portfolio.py
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: portfolio-postgres
+      POSTGRES_DB: portfolio_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      KAFKA_BOOTSTRAP_SERVERS: portfolio-kafka:9092
+    networks:
+      - portfolio-net
+    restart: always
+
+  portfolio-api:
+    build:
+      context: ./backend
+    container_name: portfolio-api
+    command: python api_server.py
+    depends_on:
+      portfolio-engine:
+        condition: service_started
+    ports:
+      - "8001:8001"
+    environment:
+      - POSTGRES_HOST=portfolio-postgres
+      - POSTGRES_DB=portfolio_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - API_PORT=8001
+    networks:
+      - portfolio-net
+    restart: always
+
+volumes:
+  pgdata:

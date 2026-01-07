@@ -1,0 +1,106 @@
+# =============================================================================
+# ALERTMANAGER CONFIGURATION
+# =============================================================================
+# Handles alerts sent by Prometheus and routes them to receivers.
+# Configure your notification channels (Slack, email, PagerDuty, etc.)
+# =============================================================================
+
+global:
+  # Default SMTP settings (configure for email alerts)
+  # smtp_smarthost: 'smtp.gmail.com:587'
+  # smtp_from: 'alertmanager@trading-system.com'
+  # smtp_auth_username: 'your-email@gmail.com'
+  # smtp_auth_password: 'your-app-password'
+  
+  # Slack webhook (configure for Slack alerts)
+  # slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+  
+  resolve_timeout: 5m
+
+# Route tree
+route:
+  group_by: ['alertname', 'severity', 'component']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'default-receiver'
+  
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-receiver'
+      group_wait: 10s
+      repeat_interval: 1h
+    
+    # Kafka-specific alerts
+    - match:
+        component: kafka
+      receiver: 'kafka-receiver'
+      group_by: ['alertname', 'topic', 'consumergroup']
+    
+    # Trading system alerts
+    - match:
+        component: trading
+      receiver: 'trading-receiver'
+      group_by: ['alertname']
+
+# Receivers
+receivers:
+  - name: 'default-receiver'
+    # Default: just log to alertmanager (no external notification)
+    # Uncomment and configure the webhook/email/slack receivers below
+    
+    # Example webhook receiver
+    # webhook_configs:
+    #   - url: 'http://your-webhook-endpoint:5001/webhook'
+    #     send_resolved: true
+
+  - name: 'critical-receiver'
+    # Configure for critical alerts (PagerDuty, phone calls, etc.)
+    # pagerduty_configs:
+    #   - service_key: 'your-pagerduty-key'
+    #     severity: critical
+    
+    # Example Slack for critical alerts
+    # slack_configs:
+    #   - channel: '#alerts-critical'
+    #     title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+    #     send_resolved: true
+
+  - name: 'kafka-receiver'
+    # Kafka-specific alerts
+    # slack_configs:
+    #   - channel: '#kafka-alerts'
+    #     title: 'Kafka Alert: {{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+    #     send_resolved: true
+
+  - name: 'trading-receiver'
+    # Trading system alerts
+    # slack_configs:
+    #   - channel: '#trading-alerts'
+    #     title: 'Trading System: {{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+    #     send_resolved: true
+
+# Inhibition rules - suppress less severe alerts when more severe are firing
+inhibit_rules:
+  # Suppress warnings when critical alert is firing for same component
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'component']
+  
+  # Suppress all alerts for a component if it's completely down
+  - source_match:
+      alertname: 'KafkaBrokerDown'
+    target_match_re:
+      alertname: 'Kafka.*'
+    equal: ['component']
+
+# Templates (optional - customize alert format)
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'

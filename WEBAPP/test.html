@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kafka Chat (Single User)</title>
+</head>
+<body>
+    <h2>My Chat App</h2>
+    <div id="messages" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px;"></div>
+    <br>
+    <input type="text" id="messageInput" placeholder="Type a message..." style="width: 80%;">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        // --- CHANGED ---
+        // No user ID needed
+        const ws = new WebSocket(`wss://dfc78afcdc8c.ngrok-free.app/ws`);
+        
+        const messagesDiv = document.getElementById("messages");
+        const messageInput = document.getElementById("messageInput");
+
+        ws.onopen = (event) => {
+            // --- CHANGED ---
+            addMessageToBox(`[Connected]`);
+        };
+
+        // This is triggered when the gateway *sends* a response
+        ws.onmessage = (event) => {
+            const response = event.data;
+            addMessageToBox(`Bot: ${response}`);
+        };
+
+        ws.onclose = (event) => {
+            addMessageToBox("[Disconnected]");
+        };
+
+        ws.onerror = (event) => {
+            addMessageToBox("[Connection Error]");
+            console.error("WebSocket error:", event);
+        };
+
+        function sendMessage() {
+            const message = messageInput.value;
+            if (message && ws.readyState === WebSocket.OPEN) {
+                // Send the user's query to the gateway
+                ws.send(message);
+                addMessageToBox(`You: ${message}`);
+                messageInput.value = "";
+            }
+        }
+
+        function addMessageToBox(message) {
+            messagesDiv.innerHTML += `<div>${message}</div>`;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Allow sending with Enter key
+        messageInput.addEventListener("keyup", (event) => {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+    </script>
+</body>
+</html>

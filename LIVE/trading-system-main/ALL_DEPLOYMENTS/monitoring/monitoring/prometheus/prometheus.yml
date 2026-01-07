@@ -1,0 +1,137 @@
+# =============================================================================
+# PROMETHEUS CONFIGURATION
+# =============================================================================
+# Scrape configurations for Kafka, services, and infrastructure monitoring
+# =============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'trading-system'
+    env: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Rule files
+rule_files:
+  - /etc/prometheus/alert_rules.yml
+
+# Scrape configurations
+scrape_configs:
+  # =========================================================================
+  # Prometheus self-monitoring
+  # =========================================================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'prometheus'
+
+  # =========================================================================
+  # Kafka Exporter Metrics
+  # =========================================================================
+  - job_name: 'kafka-exporter'
+    static_configs:
+      - targets: ['kafka-exporter:9308']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'kafka-cluster'
+    metric_relabel_configs:
+      # Keep only important metrics to reduce storage
+      - source_labels: [__name__]
+        regex: 'kafka_.*'
+        action: keep
+
+  # =========================================================================
+  # Node Exporter - Host Metrics
+  # =========================================================================
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'docker-host'
+
+  # =========================================================================
+  # cAdvisor - Container Metrics
+  # =========================================================================
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'docker-containers'
+    metric_relabel_configs:
+      # Filter to important container metrics
+      - source_labels: [__name__]
+        regex: 'container_(cpu|memory|network|fs)_.*'
+        action: keep
+      # Add container name label
+      - source_labels: [container_label_com_docker_compose_service]
+        target_label: service
+      - source_labels: [name]
+        target_label: container_name
+
+  # =========================================================================
+  # Loki Metrics
+  # =========================================================================
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'loki'
+
+  # =========================================================================
+  # Grafana Metrics
+  # =========================================================================
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'grafana'
+
+  # =========================================================================
+  # Alertmanager Metrics
+  # =========================================================================
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'alertmanager'
+
+  # =========================================================================
+  # Custom Application Metrics (if your apps expose /metrics endpoint)
+  # =========================================================================
+  # Uncomment and configure these if you add Prometheus metrics to your apps
+  
+  # - job_name: 'portfolio-api'
+  #   static_configs:
+  #     - targets: ['portfolio-api:8080']
+  #   metrics_path: /metrics
+
+  # - job_name: 'macro-api'
+  #   static_configs:
+  #     - targets: ['macro-api:8000']
+  #   metrics_path: /metrics
+
+  # - job_name: 'chronos-api'
+  #   static_configs:
+  #     - targets: ['chronos-api:9000']
+  #   metrics_path: /metrics

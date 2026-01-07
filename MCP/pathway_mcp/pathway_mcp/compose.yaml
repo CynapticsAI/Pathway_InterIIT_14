@@ -1,0 +1,12 @@
+services:
+  pathway_mcp:
+    container_name: pathway_mcp
+    image: pgoldt/pathway_mcp:macos
+    build:
+      context: .
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - PATHWAY_LICENSE_KEY=${PATHWAY_LICENSE_KEY}
+    ports:
+      - "8123:8123"

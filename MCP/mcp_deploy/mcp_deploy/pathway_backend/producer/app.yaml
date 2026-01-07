@@ -1,0 +1,9 @@
+---
+symbols : ["BINANCE:BTCUSDT", "BINANCE:ETHUSDT"]
+
+rdkafka_settings:
+  bootstrap.servers: "kafka:9092"
+  group.id: "producer_group"
+  session.timeout.ms: "6000"
+
+topic_name : stock_data

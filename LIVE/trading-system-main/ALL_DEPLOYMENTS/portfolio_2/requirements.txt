@@ -1,0 +1,27 @@
+# Streaming & Data Processing
+pathway==0.8.0
+pandas==2.1.3
+numpy==1.26.2
+
+# Portfolio Optimization
+PyPortfolioOpt==1.5.5
+cvxpy==1.4.1
+
+# Database
+psycopg2-binary==2.9.9
+
+# Messaging
+confluent-kafka==2.3.0
+
+# API & Web
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.5.0
+
+# HTTP Requests
+requests==2.31.0
+
+# Utilities
+python-dotenv==1.0.0
+scipy==1.11.4
+scikit-learn==1.3.2

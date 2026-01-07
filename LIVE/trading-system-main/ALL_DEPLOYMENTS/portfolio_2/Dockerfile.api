@@ -1,0 +1,15 @@
+FROM pathwaycom/pathway:slim-latest
+
+WORKDIR /app
+
+# Copy requirements from root
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt fastapi uvicorn
+
+# Copy portfolio files
+COPY portfolio/portfolio.py .
+COPY portfolio/api_server.py .
+
+EXPOSE 8080
+
+CMD ["python", "api_server.py"]

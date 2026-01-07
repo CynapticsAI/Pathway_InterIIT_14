@@ -1,0 +1,92 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+
+  tweet_producer:
+    build:
+      context: ./tweetProducer
+    depends_on:
+      - kafka
+
+  ohlc_producer:
+    build:
+      context: ./ohlcProducer
+    depends_on:
+      - kafka
+
+  reddit_producer:
+    build:
+      context: ./redditProducer
+    depends_on:
+      - kafka
+  
+  chronos_consumer:
+    build:
+      context: ./chronosConsumer
+    depends_on:
+      - kafka
+      - ohlc_producer
+      - reddit_producer
+      - tweet_producer
+    volumes:
+      - ./output:/app/chronos_output
+      - ./chronosConsumer/heartbeat:/app/heartbeat
+      - ./chronosConsumer/chronos2_stream_ckpts_latest:/app/chronos2_stream_ckpts_latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+  spike_detector:
+    build:
+      context: ./spike_detector
+    depends_on:
+      - kafka
+      - ohlc_producer
+    volumes:
+      - ./spike_detector/output:/app/output
+  sarimax_consumer:
+    build:
+      context: ./sarimaxConsumer
+    depends_on:
+      - ohlc_producer
+      - kafka
+      - spike_detector
+    volumes:
+      - ./output:/app/output
+
+  select_model:
+    build:
+      context: ./selection
+    depends_on:
+      - sarimax_consumer
+      - chronos_consumer
+    volumes:
+      - ./selection/s_output:/app/s_output
+
+  

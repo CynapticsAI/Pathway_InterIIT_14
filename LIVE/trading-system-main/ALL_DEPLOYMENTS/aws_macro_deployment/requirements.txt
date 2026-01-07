@@ -1,0 +1,14 @@
+# requirements.txt
+fastapi
+uvicorn[standard]
+pydantic
+pandas
+numpy==2.0.0
+xgboost
+scikit-learn
+yfinance
+fredapi
+kafka-python
+python-multipart
+matplotlib
+torch==2.5.0

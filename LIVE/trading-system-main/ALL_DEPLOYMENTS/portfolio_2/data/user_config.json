@@ -1,0 +1,15 @@
+{
+  "strategy_name": "Mean-Variance",
+  "hard_to_borrow": ["GME", "AMC", "BBBY"],
+  "risk_params": {
+    "hurdle_rate": 0.05,
+    "min_liquidity_amt": 500000,
+    "target_beta": 1.0,
+    "gross_leverage_limit": 1.5,
+    "net_leverage_limit": 1.0,
+    "risk_cap_var": 0.02,
+    "max_sector_exposure": 0.25,
+    "max_drawdown_limit": 0.15,
+    "max_turnover": 0.50
+  }
+}

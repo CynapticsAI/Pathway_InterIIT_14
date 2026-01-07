@@ -1,0 +1,4 @@
+# Logs directory
+*.log
+*.log.*
+

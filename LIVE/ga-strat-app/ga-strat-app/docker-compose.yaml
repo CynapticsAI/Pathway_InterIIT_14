@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: ga-strat-api
+    volumes:
+      - ./stvgp_out:/app/stvgp_out
+      - ./downloaded_csvs:/app/downloaded_csvs
+      - ./ga_strategy:/app/ga_strategy
+      - ./gp_strategy:/app/gp_strategy
+    user: "${UID}:${GID}"
+    ports:
+      - "1235:8989"
+    restart: always

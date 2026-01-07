@@ -1,0 +1,49 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+  producer:
+    build:
+      context: ./producer
+    depends_on:
+      - kafka
+
+  consumer:
+    build:
+      context: ./consumer
+    depends_on:
+      - kafka
+    volumes:
+      - ./ohlcOut:/app/output
+
+  signals:
+    build:
+      context: ./signals
+    depends_on:
+      - kafka
+      - producer
+    volumes:
+      - ./ohlcOut:/app/output
+    ports:
+      - "8001:8001"
+    environment:
+      BOKEH_DEFAULT_SERVER_HOST : "0.0.0.0"
+
+
+

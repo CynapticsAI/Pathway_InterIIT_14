@@ -1,0 +1,194 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Volume Spike Alert: {{ symbol }}{% endblock %}
+
+{% block header_title %}📊 Volume Spike Alert{% endblock %}
+{% block header_subtitle %}{{ symbol }} - {{ notification_type }}{% endblock %}
+
+{% block content %}
+<!-- Greeting -->
+<p style="font-size: 16px; color: #1E293B; margin-bottom: 24px;">
+  Hi <strong>{{ user.first_name|default:user.username }}</strong>,
+</p>
+
+<!-- Priority Badge -->
+<div style="margin-bottom: 20px;">
+  <span class="badge badge-volume">VOLUME SPIKE</span>
+  {% if notification.priority == 'HIGH' %}
+  <span class="badge badge-high">High Priority</span>
+  {% elif notification.priority == 'MEDIUM' %}
+  <span class="badge badge-medium">Medium Priority</span>
+  {% else %}
+  <span class="badge badge-low">Low Priority</span>
+  {% endif %}
+</div>
+
+<!-- Stock Symbol -->
+<div style="text-align: center; margin: 24px 0;">
+  <div class="stock-symbol">
+    📊 {{ symbol }}
+  </div>
+</div>
+
+<!-- Alert Message -->
+<div style="margin: 24px 0; text-align: center;">
+  <h2 style="font-size: 22px; color: #1E293B; margin-bottom: 12px;">
+    Unusual Trading Activity Detected!
+  </h2>
+  <p style="font-size: 15px; color: #475569; line-height: 1.7;">
+    {{ notification.message }}
+  </p>
+</div>
+
+<!-- Volume Stats Grid -->
+{% if data.spike_percentage and data.current_volume and data.average_volume %}
+<div style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border-radius: 12px; padding: 24px; margin: 24px 0;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td width="33%" align="center" style="padding: 12px;">
+        <div class="stat-card" style="background-color: #FFFFFF; border: 2px solid #E2E8F0;">
+          <div class="stat-value" style="font-size: 28px; color: #F59E0B;">
+            {{ data.spike_percentage|floatformat:1 }}%
+          </div>
+          <div class="stat-label">Spike</div>
+        </div>
+      </td>
+      <td width="33%" align="center" style="padding: 12px;">
+        <div class="stat-card" style="background-color: #FFFFFF; border: 2px solid #E2E8F0;">
+          <div class="stat-value" style="font-size: 20px; color: #475569;">
+            {{ data.current_volume|floatformat:0 }}
+          </div>
+          <div class="stat-label">Current Volume</div>
+        </div>
+      </td>
+      <td width="33%" align="center" style="padding: 12px;">
+        <div class="stat-card" style="background-color: #FFFFFF; border: 2px solid #E2E8F0;">
+          <div class="stat-value" style="font-size: 20px; color: #64748B;">
+            {{ data.average_volume|floatformat:0 }}
+          </div>
+          <div class="stat-label">Avg Volume</div>
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>
+{% endif %}
+
+<!-- Detailed Information -->
+<div class="info-box">
+  <h3>📈 Trading Details</h3>
+  
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 12px;">
+    {% if data.current_price %}
+    <tr>
+      <td class="data-row" style="display: table; width: 100%; padding: 10px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td width="50%" style="vertical-align: middle;">
+              <span class="data-label">Current Price:</span>
+            </td>
+            <td width="50%" style="text-align: right; vertical-align: middle;">
+              <span class="data-value">${{ data.current_price|floatformat:2 }}</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    {% endif %}
+    
+    {% if data.price_change_percentage %}
+    <tr>
+      <td class="data-row" style="display: table; width: 100%; padding: 10px 0; border-top: 1px solid #E2E8F0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td width="50%" style="vertical-align: middle;">
+              <span class="data-label">Price Change:</span>
+            </td>
+            <td width="50%" style="text-align: right; vertical-align: middle;">
+              {% if data.price_change_percentage > 0 %}
+              <span class="price-up">+{{ data.price_change_percentage|floatformat:2 }}% ▲</span>
+              {% elif data.price_change_percentage < 0 %}
+              <span class="price-down">{{ data.price_change_percentage|floatformat:2 }}% ▼</span>
+              {% else %}
+              <span class="data-value">{{ data.price_change_percentage|floatformat:2 }}%</span>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    {% endif %}
+    
+    {% if data.spike_percentage %}
+    <tr>
+      <td class="data-row" style="display: table; width: 100%; padding: 10px 0; border-top: 1px solid #E2E8F0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td width="50%" style="vertical-align: middle;">
+              <span class="data-label">Volume Increase:</span>
+            </td>
+            <td width="50%" style="text-align: right; vertical-align: middle;">
+              <span class="data-value" style="color: #F59E0B;">{{ data.spike_percentage|floatformat:1 }}%</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    {% endif %}
+    
+    {% if data.volume_ratio %}
+    <tr>
+      <td class="data-row" style="display: table; width: 100%; padding: 10px 0; border-top: 1px solid #E2E8F0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td width="50%" style="vertical-align: middle;">
+              <span class="data-label">Volume Ratio:</span>
+            </td>
+            <td width="50%" style="text-align: right; vertical-align: middle;">
+              <span class="data-value">{{ data.volume_ratio|floatformat:2 }}x</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    {% endif %}
+  </table>
+</div>
+
+<!-- What This Means -->
+<div style="background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 16px; border-radius: 8px; margin: 24px 0;">
+  <h3 style="font-size: 15px; color: #92400E; margin-bottom: 8px; font-weight: 700;">
+    ⚡ What This Means
+  </h3>
+  <p style="font-size: 14px; color: #78350F; line-height: 1.6; margin: 0;">
+    A significant increase in trading volume can indicate heightened interest in the stock. 
+    This could be due to news, earnings reports, or other market-moving events. 
+    Consider reviewing recent news and market conditions.
+  </p>
+</div>
+
+<!-- Timestamp -->
+<div class="timestamp">
+  <span class="timestamp-icon">🕐</span>
+  <span class="timestamp-text">{{ timestamp|date:"F d, Y \a\t g:i A" }} UTC</span>
+</div>
+
+<!-- Call to Action -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 32px;">
+  <tr>
+    <td align="center">
+      <a href="{{ app_url }}/portfolio" class="button" style="text-decoration: none;">
+        View {{ symbol }} in Portfolio
+      </a>
+    </td>
+  </tr>
+</table>
+
+<!-- Additional Info -->
+<div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #E2E8F0;">
+  <p style="font-size: 13px; color: #64748B; text-align: center; line-height: 1.6;">
+    💡 <strong>Tip:</strong> Volume spikes can signal important market movements. 
+    Set custom thresholds in your notification preferences to receive alerts that matter to you.
+  </p>
+</div>
+{% endblock %}

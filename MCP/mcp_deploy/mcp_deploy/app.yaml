@@ -1,0 +1,41 @@
+---
+live_rag_server_sec : http://multi_rag:6060
+live_rag_server_tax : http://tax_rag:6060
+pred_url : "http://13.50.238.243:9000"
+portfolio_url : "http://13.50.238.243:8080"
+macrodata_url : "http://13.50.238.243:8000/predict"
+strategy_url : "http://13.50.238.243:1235"
+
+port : 1234
+pg_conninfo: "dbname=pg_db user=postgres password=pass host=postgres"
+pg_conninfo_user: "dbname=postgres user=postgres password=Y8IFxwZd3BsRzTwL1Xvf host=database-1.chw8c28cep8y.eu-north-1.rds.amazonaws.com port=5432"
+
+timeout_macro:
+  total : 30
+  connect: 20
+  sock_read: 20
+  sock_connect: 20
+
+timeout_preds:
+  total : 5
+  connect: 5
+  sock_read: 5
+  sock_connect : 5
+
+timeout_rag:
+  total : 10
+  connect: 5
+  sock_read: 5
+  sock_connect : 5
+
+timeout_port:
+  total : 20
+  connect: 10
+  sock_read: 10
+  sock_connect: 10
+
+timeout_strat:
+  total : 20
+  connect: 10
+  sock_read: 10
+  sock_connect: 10

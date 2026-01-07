@@ -1,0 +1,4 @@
+services:
+  kafka:
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9090,EXTERNAL://172.31.8.85:29092

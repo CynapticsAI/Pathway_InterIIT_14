@@ -1,0 +1,113 @@
+name: "technical_analyzer"
+
+
+services:
+  sarimax_api:
+    build:
+      context: ./sarimax_api
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker access
+      - ${KUBE_CONFIG_PATH}:/root/.kube
+      - .:/technical_analysis  # Mount entire project
+    ports:
+      - "8888:8888"
+    environment:
+      KUBECONFIG: /root/.kube/config
+      PYTHONUNBUFFERED: "1"
+    depends_on:
+      - kafka
+      - finnhub_producer
+    restart: unless-stopped
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092" # Internal usage (optional to expose, but good for debugging)
+      - "9093:9093" # External usage (host machine/manual tests)
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://13.50.238.243:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+
+  finnhub_producer:
+    build:
+      context: ./finnhub_producer
+    depends_on:
+      - kafka
+
+  market_breadth:
+    build:
+      context: ./market_breadth
+    depends_on:
+      - kafka
+      - finnhub_producer
+    volumes:
+      - ./market_breadth:/app/output
+    ports:
+      - "8002:8002" 
+  spike_detector:
+    build:
+      context: ./spike_detector
+    depends_on:
+      - kafka
+      - finnhub_producer
+    volumes:
+      - ./spike_detector:/app/output
+    ports:
+      - "8003:8001"
+    environment:
+      BOKEH_DEFAULT_SERVER_HOST : "0.0.0.0" 
+  pnl:
+    build:
+      context: ./pnl
+    depends_on:
+      - kafka
+      - finnhub_producer
+    volumes:
+      - ./pnl:/app/output
+
+  news:
+    build:
+      context: ./news_producer
+    volumes:
+      - ./news_producer:/app/output
+    depends_on:
+      - kafka
+      
+  rrg:
+    build:
+      context: ./rrg
+    depends_on:
+      - kafka
+      - finnhub_producer
+    volumes:
+      - ./rrg:/app/output
+    environment:
+      KAFKA_BROKER: kafka:9092
+      KAFKA_TOPIC: stock_data
+
+volumes:
+  postgres_data:
+
+
+
+
+
+
+

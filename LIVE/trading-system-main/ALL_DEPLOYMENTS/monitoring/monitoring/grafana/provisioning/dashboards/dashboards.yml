@@ -1,0 +1,20 @@
+# =============================================================================
+# GRAFANA DASHBOARD PROVISIONING
+# =============================================================================
+# Auto-provision dashboards when Grafana starts
+# =============================================================================
+
+apiVersion: 1
+
+providers:
+  - name: 'Trading System Dashboards'
+    orgId: 1
+    folder: 'Trading System'
+    folderUid: 'trading-system'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

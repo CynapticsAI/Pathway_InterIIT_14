@@ -1,0 +1,103 @@
+networks:
+  portfolio-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: portfolio_db
+    networks:
+      - portfolio-network
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+ 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      retries: 10
+    restart: unless-stopped
+
+  scorer:
+    build:
+      context: ./scorer
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=13.50.238.243:29092
+    extra_hosts:
+      - "kafka:172.31.8.85"
+    volumes:
+      - ./output:/app/output
+      - ./data:/app/data
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
+  consumer:
+    build:
+      context: ./consumer
+    container_name: portfolio-consumer
+    depends_on:
+      - scorer
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=13.50.238.243:29092
+    extra_hosts:
+      - "kafka:172.31.8.85"
+    volumes:
+      - ./output:/app/output
+      - ./data:/app/data
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
+  portfolio:
+    build:
+      context: ./portfolio
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: portfolio_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      KAFKA_BOOTSTRAP_SERVERS: 13.50.238.243:29092
+      MACRO_API_URL: http://13.50.238.243:8000
+    extra_hosts:
+      - "kafka:172.31.8.85"
+    volumes:
+      - ./output:/app/output
+      - ./data:/app/data
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
+  portfolio-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    depends_on:
+      - portfolio
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./output:/app/output
+      - ./data:/app/data
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=portfolio_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    networks:
+      - portfolio-network
+    restart: unless-stopped

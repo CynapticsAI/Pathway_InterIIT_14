@@ -1,0 +1,38 @@
+networks:
+  macro-network:
+    driver: bridge
+
+services:
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    container_name: macro-model-trainer
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=172.31.8.85:9090
+    extra_hosts:
+      - "kafka:172.31.8.85"
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    networks:
+      - macro-network
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: macro-prediction-api
+    depends_on:
+      - consumer
+    ports:
+      - "8000:8000"
+    environment:
+      - FRED_API_KEY=${FRED_API_KEY}
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    networks:
+      - macro-network
+    restart: unless-stopped

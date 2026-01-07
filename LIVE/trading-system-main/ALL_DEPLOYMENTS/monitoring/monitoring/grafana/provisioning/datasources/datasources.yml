@@ -1,0 +1,52 @@
+# =============================================================================
+# GRAFANA DATASOURCES PROVISIONING
+# =============================================================================
+# Auto-provision datasources when Grafana starts
+# =============================================================================
+
+apiVersion: 1
+
+datasources:
+  # ===========================================================================
+  # Prometheus - Metrics
+  # ===========================================================================
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: "15s"
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: "2.47.0"
+
+  # ===========================================================================
+  # Loki - Logs
+  # ===========================================================================
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: false
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        # Link container logs to metrics
+        - datasourceUid: prometheus
+          matcherRegex: "container=([a-zA-Z0-9_-]+)"
+          name: Container
+          url: '/explore?left=["now-1h","now","Prometheus",{"expr":"container_cpu_usage_seconds_total{name=\"$${__value.raw}\"}"}]'
+
+  # ===========================================================================
+  # Alertmanager - Alerts
+  # ===========================================================================
+  - name: Alertmanager
+    type: alertmanager
+    access: proxy
+    url: http://alertmanager:9093
+    editable: false
+    jsonData:
+      implementation: prometheus

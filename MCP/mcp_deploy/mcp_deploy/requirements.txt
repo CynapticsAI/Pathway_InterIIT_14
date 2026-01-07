@@ -1,0 +1,8 @@
+PyYAML
+httpx
+trafilatura
+python-dateutil
+limits
+psycopg[binary, pool]
+aiohttp
+mcp

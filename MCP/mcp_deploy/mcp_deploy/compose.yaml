@@ -1,0 +1,59 @@
+services:
+  tools:
+    image : pgoldt/mcp_tools:latest
+    build:
+      context: .
+    ports:
+      - "1234:1234"
+    environment:
+      SERPER_API_KEY: $SERPER_API_KEY
+      MCP_TOKEN: "dummy_token"
+    depends_on:
+      - ohlc
+      - multi_rag
+      - tax_rag
+
+  multi_rag:
+    image: pgoldt/multi_rag:latest
+    build:
+      context: ./pathway_backend/live_rag/multimodal_rag
+    environment:
+      PATHWAY_PORT: "${PATHWAY_PORT:-8000}"
+      PATHWAY_LICENSE_KEY: $PATHWAY_LICENSE_KEY
+      GEMINI_API_KEY: $GEMINI_API_KEY
+      OPENAI_API_KEY: $OPENAI_API_KEY
+    volumes:
+      - ./pathway_backend/live_rag/multimodal_rag/data:/app/data
+      - ./pathway_backend/live_rag/multimodal_rag/Cache:/app/Cache
+    
+  tax_rag:
+    image: pgoldt/tax_rag:latest
+    build:
+      context: ./pathway_backend/live_rag/tax_rag
+    environment:
+      PATHWAY_PORT: "${PATHWAY_PORT:-8000}"
+      PATHWAY_LICENSE_KEY: $PATHWAY_LICENSE_KEY
+      GEMINI_API_KEY: $GEMINI_API_KEY
+      OPENAI_API_KEY: $OPENAI_API_KEY
+    volumes:
+      - ./pathway_backend/live_rag/tax_rag/data:/app/data
+      - ./pathway_backend/live_rag/tax_rag/Cache:/app/Cache
+      
+
+  ohlc:
+    image : pgoldt/ohlc:latest
+    build: 
+      context: ./pathway_backend/ohlc
+    
+    depends_on: 
+      - postgres
+
+  
+
+  postgres:
+    image: postgres:15
+    environment: 
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - ./pathway_backend/postgres_init/init:/docker-entrypoint-initdb.d
+      - ./pathway_backend/postgres_init/data:/var/lib/postgresql/data
