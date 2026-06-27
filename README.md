@@ -18,7 +18,7 @@ An intelligent, real-time trading and portfolio management system powered by age
 
 ## Overview
 
-HedgeMind is a comprehensive trading intelligence platform that integrates real-time market data processing, machine learning-based forecasting, and agentic decision-making systems. The repository is organized into distinct modules, each serving a specific purpose in the overall architecture.
+HedgeMind is one-of-a-kind comprehensive trading intelligence platform that integrates real-time market data processing, machine learning-based forecasting, and agentic decision-making systems. The repository is organized into distinct modules, each serving a specific purpose in the overall architecture.
 
 Each folder contains its own detailed README with implementation specifics, setup instructions, and usage guidelines.
 
